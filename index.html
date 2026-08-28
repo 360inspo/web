@@ -4,6 +4,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>360 TopUp - All in One</title>
+
+    <!-- ===== PWA MANIFEST (generated dynamically) ===== -->
+    <link id="manifest-link" rel="manifest" href="#" />
+
+    <!-- ===== THEME COLOR FOR ANDROID ===== -->
+    <meta name="theme-color" content="#2ECC71" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
     <style>
         /* ===== ROOT & GLOBAL ===== */
         :root {
@@ -2002,12 +2011,108 @@
                 padding: 20px 16px;
             }
         }
-    </style><link rel="manifest" href="manifest.json">
-<!-- Fallback for iOS -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="360topup">
-<link rel="apple-touch-icon" href="icon-192.png">
+
+        /* ===== INSTALL BANNER ===== */
+        #install-banner {
+            display: none;
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            z-index: 9998;
+            font-size: 0.95rem;
+            font-weight: 500;
+            align-items: center;
+            gap: 16px;
+            max-width: 92%;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+        }
+        #install-banner.show {
+            display: flex;
+        }
+        #install-banner .app-icon-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #2ECC71;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 16px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        #install-banner .banner-text {
+            flex: 1;
+        }
+        #install-banner .banner-text strong {
+            display: block;
+            font-size: 1rem;
+        }
+        #install-banner .banner-text span {
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+        #install-banner .install-btn {
+            background: #2ECC71;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.15s;
+            white-space: nowrap;
+        }
+        #install-banner .install-btn:hover {
+            background: #27ae60;
+        }
+        #install-banner .install-btn:active {
+            transform: scale(0.94);
+        }
+        #install-banner .close-banner {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.4rem;
+            cursor: pointer;
+            padding: 0 4px;
+            line-height: 1;
+        }
+        #install-banner .close-banner:hover {
+            color: #fff;
+        }
+        @media (max-width: 480px) {
+            #install-banner {
+                bottom: 74px;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                flex-wrap: wrap;
+                justify-content: center;
+                border-radius: 12px;
+            }
+            #install-banner .app-icon-small {
+                width: 34px;
+                height: 34px;
+                font-size: 13px;
+            }
+            #install-banner .banner-text strong {
+                font-size: 0.9rem;
+            }
+            #install-banner .install-btn {
+                padding: 6px 16px;
+                font-size: 0.78rem;
+            }
+        }
+    </style>
 </head>
 <body data-theme="light">
 
@@ -2637,9 +2742,223 @@
         </button>
     </nav>
 
+    <!-- ===== INSTALL BANNER ===== -->
+    <div id="install-banner">
+        <div class="app-icon-small">📱</div>
+        <div class="banner-text">
+            <strong>Install 360 TopUp</strong>
+            <span>Get instant access &amp; offline support</span>
+        </div>
+        <button class="install-btn" id="installBtn">Install</button>
+        <button class="close-banner" id="closeInstallBanner">✕</button>
+    </div>
+
     <script>
         // ============================================================
-        // 1. PAGE SWITCHING (with premium standalone handling)
+        // 1. PWA MANIFEST GENERATION (with canvas icon)
+        // ============================================================
+        (function generatePWA() {
+            // --- Generate icon using canvas ---
+            function generateIcon(size) {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
+
+                // White background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
+
+                // Green text: "360topup"
+                ctx.fillStyle = '#2ECC71';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const fontSize = size * 0.24;
+                ctx.font = 'bold ' + fontSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                ctx.fillText('360', size / 2, size * 0.42);
+                const subSize = size * 0.13;
+                ctx.font = 'bold ' + subSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                ctx.fillStyle = '#1a7a3a';
+                ctx.fillText('topup', size / 2, size * 0.68);
+
+                return canvas.toDataURL('image/png');
+            }
+
+            const icon192 = generateIcon(192);
+            const icon512 = generateIcon(512);
+
+            // --- Build manifest ---
+            const manifest = {
+                name: 'Made for Africa',
+                short_name: '360 Topup',
+                description: 'Affordable data you can trust — MTN, GLO, Airtel, 9mobile',
+                start_url: location.href.split('?')[0] + '?utm_source=pwa',
+                display: 'standalone',
+                orientation: 'portrait',
+                background_color: '#ffffff',
+                theme_color: '#2ECC71',
+                icons: [
+                    { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                    { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+                ],
+                categories: ['utilities', 'productivity'],
+                lang: 'en',
+                prefer_related_applications: false
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(manifestBlob);
+
+            const link = document.getElementById('manifest-link');
+            if (link) link.href = manifestURL;
+
+            // Also set theme-color meta
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) metaTheme.content = '#2ECC71';
+        })();
+
+        // ============================================================
+        // 2. SERVICE WORKER REGISTRATION
+        // ============================================================
+        (function registerSW() {
+            if ('serviceWorker' in navigator) {
+                // Generate sw.js dynamically so it can cache the manifest URL
+                const swCode = `
+                    const CACHE_NAME = '360-topup-v2';
+                    const ASSETS = [
+                        location.origin + location.pathname,
+                        // The manifest URL will be injected dynamically
+                    ];
+
+                    // Inject the current manifest URL
+                    const manifestUrl = document.querySelector('link[rel="manifest"]')?.href || '';
+
+                    self.addEventListener('install', e => {
+                        e.waitUntil(
+                            caches.open(CACHE_NAME)
+                                .then(cache => {
+                                    const urls = [location.origin + location.pathname];
+                                    if (manifestUrl) urls.push(manifestUrl);
+                                    return cache.addAll(urls);
+                                })
+                                .then(() => self.skipWaiting())
+                        );
+                    });
+
+                    self.addEventListener('activate', e => {
+                        e.waitUntil(
+                            caches.keys().then(keys => {
+                                return Promise.all(
+                                    keys.filter(key => key !== CACHE_NAME)
+                                        .map(key => caches.delete(key))
+                                );
+                            }).then(() => self.clients.claim())
+                        );
+                    });
+
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            caches.match(e.request)
+                                .then(response => {
+                                    if (response) return response;
+                                    return fetch(e.request).then(fetchRes => {
+                                        if (!fetchRes || fetchRes.status !== 200) return fetchRes;
+                                        const clone = fetchRes.clone();
+                                        caches.open(CACHE_NAME).then(cache => {
+                                            if (e.request.url.startsWith('http')) {
+                                                cache.put(e.request, clone);
+                                            }
+                                        });
+                                        return fetchRes;
+                                    });
+                                })
+                                .catch(() => {
+                                    // Offline fallback
+                                    if (e.request.mode === 'navigate') {
+                                        return caches.match(location.origin + location.pathname);
+                                    }
+                                    return new Response('Offline', { status: 503 });
+                                })
+                        );
+                    });
+                `;
+
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swURL = URL.createObjectURL(swBlob);
+
+                navigator.serviceWorker.register(swURL, { scope: '/' })
+                    .then(() => console.log('Service Worker registered'))
+                    .catch(err => console.warn('SW registration failed:', err));
+            }
+        })();
+
+        // ============================================================
+        // 3. INSTALL BANNER
+        // ============================================================
+        (function setupInstallBanner() {
+            const banner = document.getElementById('install-banner');
+            const closeBtn = document.getElementById('closeInstallBanner');
+            const installBtn = document.getElementById('installBtn');
+            let deferredPrompt = null;
+
+            // Close banner
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    banner.classList.remove('show');
+                    localStorage.setItem('installBannerDismissed', 'true');
+                });
+            }
+
+            // Check if already dismissed
+            if (localStorage.getItem('installBannerDismissed') === 'true') {
+                return;
+            }
+
+            // Listen for beforeinstallprompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                // Show banner after a small delay
+                setTimeout(() => {
+                    banner.classList.add('show');
+                }, 3000);
+            });
+
+            // Install button
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const result = await deferredPrompt.userChoice;
+                        if (result.outcome === 'accepted') {
+                            console.log('User accepted install');
+                            banner.classList.remove('show');
+                            localStorage.setItem('installBannerDismissed', 'true');
+                        } else {
+                            console.log('User dismissed install');
+                            banner.classList.remove('show');
+                            localStorage.setItem('installBannerDismissed', 'true');
+                        }
+                        deferredPrompt = null;
+                    } else {
+                        // Fallback: try to open in browser
+                        alert('Installation not available. Please use the browser\'s "Add to Home Screen" option.');
+                        banner.classList.remove('show');
+                        localStorage.setItem('installBannerDismissed', 'true');
+                    }
+                });
+            }
+
+            // Also hide banner if app is already installed (standalone mode)
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                banner.classList.remove('show');
+                localStorage.setItem('installBannerDismissed', 'true');
+            }
+        })();
+
+        // ============================================================
+        // 4. PAGE SWITCHING (with premium standalone handling)
         // ============================================================
         function switchPage(pageId, btnEl) {
             document.querySelectorAll('.page-section:not(#page-premium)').forEach(el => el.classList.remove('active'));
@@ -2670,7 +2989,7 @@
         }
 
         // ============================================================
-        // 2. AUTH / LOGIN FLOW
+        // 5. AUTH / LOGIN FLOW
         // ============================================================
         let activePendingUser = "";
         const targetShareUrl = "https://sites.google.com/view/360topup/refer-and-earn?authuser=0";
@@ -2701,7 +3020,7 @@
         }
 
         // ============================================================
-        // 3. CAPTCHA
+        // 6. CAPTCHA
         // ============================================================
         const captchaBox = document.getElementById('captchaBox');
         const captchaInput = document.getElementById('captchaInput');
@@ -2740,7 +3059,7 @@
         });
 
         // ============================================================
-        // 4. THEME
+        // 7. THEME
         // ============================================================
         function toggleTheme() {
             const body = document.body;
@@ -2759,7 +3078,7 @@
         }
 
         // ============================================================
-        // 5. DATA PLANS (Accordion, Tabs, Search, Order)
+        // 8. DATA PLANS (Accordion, Tabs, Search, Order)
         // ============================================================
         function toggleNetworkAccordion(header) {
             const section = header.parentElement;
@@ -2826,7 +3145,7 @@
         }
 
         // ============================================================
-        // 6. SUPPORT BUBBLE
+        // 9. SUPPORT BUBBLE
         // ============================================================
         let commentInterval = null;
         const randomComments = [
@@ -2887,7 +3206,7 @@
         }
 
         // ============================================================
-        // 7. GAME HUB (HTML file 2)
+        // 10. GAME HUB (HTML file 2)
         // ============================================================
         const gamesData = {
             1: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Brick Breaker Responsive 2026</title><style>*{box-sizing:border-box;}body{background:#090d16;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;margin:0;font-family:sans-serif;overflow:hidden;color:#fff;padding:10px;}.wrapper{display:flex;flex-direction:column;align-items:center;background:#111827;padding:15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);width:100%;max-width:600px;}#ui{display:flex;justify-content:space-between;width:100%;margin-bottom:10px;font-size:clamp(16px,4vw,20px);font-weight:bold;color:#00f0ff;}.canvas-area{position:relative;width:100%;aspect-ratio:600 / 400;}canvas{background:#1f2937;border:3px solid #374151;border-radius:8px;width:100%;height:100%;display:block;}.ctrls{display:flex;gap:10px;width:100%;margin-top:15px;}.btn{flex:1;padding:clamp(12px,3vw,18px);font-size:clamp(16px,4vw,20px);font-weight:bold;color:#fff;background:#374151;border:none;border-radius:8px;cursor:pointer;user-select:none;touch-action:manipulation;}.btn:active{background:#00f0ff;color:#000;}#over{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:8px;opacity:0;pointer-events:none;transition:opacity 0.2s;}#over.active{opacity:1;pointer-events:auto;}#over h2{font-size:clamp(24px,6vw,36px);margin:0 0 15px 0;}#over button{padding:10px 25px;font-size:16px;font-weight:bold;background:#00f0ff;border:none;border-radius:20px;cursor:pointer;}</style></head><body><div class="wrapper"><div id="ui"><div>SCORE: <span id="score">0</span></div></div><div class="canvas-area"><canvas id="gameCanvas"></canvas><div id="over"><h2 id="title">GAME OVER</h2><button onclick="location.reload()">REPLAY</button></div></div><div class="ctrls"><button class="btn" id="lBtn">◀ LEFT</button><button class="btn" id="rBtn">RIGHT ▶</button></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");const scoreEl=document.getElementById("score");const over=document.getElementById("over");const title=document.getElementById("title");canvas.width=600;canvas.height=400;let score=0,gameRunning=true,kL=false,kR=false;const ball={x:300,y:350,dx:5,dy:-5,r:7};const pad={h:12,w:90,x:255,speed:8};const brick={rows:5,cols:7,w:75,h:20,pad:9,top:40,left:24};const colors=["#ff0055","#ff7700","#ffcc00","#00ff66","#00ffff"];const bricks=Array.from({length:brick.cols},()=>Array.from({length:brick.rows},()=>({x:0,y:0,status:1})));for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){bricks[c][r].x=(c*(brick.w+brick.pad))+brick.left;bricks[c][r].y=(r*(brick.h+brick.pad))+brick.top;}}document.addEventListener("mousemove",(e)=>{let rect=canvas.getBoundingClientRect();let x=(e.clientX-rect.left)*(canvas.width/rect.width);if(x>0&&x<canvas.width)pad.x=x-pad.w/2;});document.addEventListener("keydown",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=true;if(e.key==="ArrowRight"||e.key==="d")kR=true;});document.addEventListener("keyup",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=false;if(e.key==="ArrowRight"||e.key==="d")kR=false;});const setupBtn=(btn,stateSetter)=>{btn.addEventListener("mousedown",()=>stateSetter(true));btn.addEventListener("mouseup",()=>stateSetter(false));btn.addEventListener("touchstart",(e)=>{e.preventDefault();stateSetter(true);});btn.addEventListener("touchend",()=>stateSetter(false));};setupBtn(document.getElementById("lBtn"),(v)=>kL=v);setupBtn(document.getElementById("rBtn"),(v)=>kR=v);function draw(){if(!gameRunning)return;ctx.clearRect(0,0,canvas.width,canvas.height);for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){let b=bricks[c][r];if(b.status===1){if(ball.x>b.x&&ball.x<b.x+brick.w&&ball.y>b.y&&ball.y<b.y+brick.h){ball.dy=-ball.dy;b.status=0;score+=10;scoreEl.innerText=score;if(score===350){gameRunning=false;title.innerText="VICTORY!";title.style.color="#00f0ff";over.classList.add("active");}}ctx.fillStyle=colors[r];ctx.fillRect(b.x,b.y,brick.w,brick.h);}}}if(kL&&pad.x>0)pad.x-=pad.speed;if(kR&&pad.x<canvas.width-pad.w)pad.x+=pad.speed;ctx.fillStyle="#00f0ff";ctx.fillRect(pad.x,canvas.height-pad.h-10,pad.w,pad.h);ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();if(ball.x+ball.dx>canvas.width-ball.r||ball.x+ball.dx<ball.r)ball.dx=-ball.dx;if(ball.y+ball.dy<ball.r)ball.dy=-ball.dy;else if(ball.y+ball.dy>canvas.height-ball.r-10){if(ball.x>pad.x&&ball.x<pad.x+pad.w){let hitPoint=ball.x-(pad.x+pad.w/2);ball.dx=hitPoint*0.15;ball.dy=-ball.dy;}else{gameRunning=false;over.classList.add("active");}}ball.x+=ball.dx;ball.y+=ball.dy;requestAnimationFrame(draw);}draw();<\/script></body></html>`,
@@ -2918,7 +3237,7 @@
         }
 
         // ============================================================
-        // 8. PREMIUM TICKET (HTML file 3)
+        // 11. PREMIUM TICKET (HTML file 3)
         // ============================================================
         const ticketCodeEl = document.getElementById('ticketCode');
         let isCodeGenerated = false;
@@ -2950,7 +3269,7 @@
         }
 
         // ============================================================
-        // 9. REFER (HTML file 4)
+        // 12. REFER (HTML file 4)
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const shareUrl = "https://tinyurl.com/360topup";
@@ -2992,7 +3311,7 @@
         });
 
         // ============================================================
-        // 10. ADVERTISE FORM (HTML file 1)
+        // 13. ADVERTISE FORM (HTML file 1)
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const openBtn = document.getElementById('openFormBtn');
@@ -3033,7 +3352,7 @@
         });
 
         // ============================================================
-        // 11. STARTUP & INIT
+        // 14. STARTUP & INIT
         // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('app-content').style.display = 'none';
@@ -3057,15 +3376,14 @@
 
             document.getElementById('refreshBtn')?.addEventListener('click', generateCaptcha);
             generateCaptcha();
+
+            // Show install banner if not dismissed and not in standalone mode
+            if (!localStorage.getItem('installBannerDismissed') &&
+                !window.matchMedia('(display-mode: standalone)').matches) {
+                // Will be shown by beforeinstallprompt event
+            }
         });
-    </script><script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js')
-        .then(reg => console.log('Service Worker registered', reg))
-        .catch(err => console.error('Service Worker registration failed', err));
-    });
-  }
-</script>
+    </script>
+
 </body>
 </html>
