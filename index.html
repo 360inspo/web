@@ -216,7 +216,7 @@
             text-align: center;
         }
 
-        /* ===== STARTUP OVERLAY (unchanged) ===== */
+        /* ===== STARTUP OVERLAY ===== */
         #startup-overlay {
             position: fixed;
             top: 0;
@@ -2758,77 +2758,93 @@
         // 1. PWA MANIFEST GENERATION (with canvas icon)
         // ============================================================
         (function generatePWA() {
-            // --- Generate icon using canvas ---
-            function generateIcon(size) {
-                const canvas = document.createElement('canvas');
-                canvas.width = size;
-                canvas.height = size;
-                const ctx = canvas.getContext('2d');
+            try {
+                // --- Generate icon using canvas ---
+                function generateIcon(size) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
 
-                // White background
-                ctx.fillStyle = '#ffffff';
-                ctx.fillRect(0, 0, size, size);
+                    // White background
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, size, size);
 
-                // Green text: "360topup"
-                ctx.fillStyle = '#2ECC71';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
+                    // Green text: "360topup"
+                    ctx.fillStyle = '#2ECC71';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
 
-                const fontSize = size * 0.24;
-                ctx.font = 'bold ' + fontSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
-                ctx.fillText('360', size / 2, size * 0.42);
-                const subSize = size * 0.13;
-                ctx.font = 'bold ' + subSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
-                ctx.fillStyle = '#1a7a3a';
-                ctx.fillText('topup', size / 2, size * 0.68);
+                    const fontSize = size * 0.24;
+                    ctx.font = 'bold ' + fontSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                    ctx.fillText('360', size / 2, size * 0.42);
+                    const subSize = size * 0.13;
+                    ctx.font = 'bold ' + subSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                    ctx.fillStyle = '#1a7a3a';
+                    ctx.fillText('topup', size / 2, size * 0.68);
 
-                return canvas.toDataURL('image/png');
+                    return canvas.toDataURL('image/png');
+                }
+
+                const icon192 = generateIcon(192);
+                const icon512 = generateIcon(512);
+
+                // --- Build manifest ---
+                const manifest = {
+                    name: 'Made for Africa',
+                    short_name: '360 Topup',
+                    description: 'Affordable data you can trust — MTN, GLO, Airtel, 9mobile',
+                    start_url: location.href.split('?')[0] + '?utm_source=pwa',
+                    display: 'standalone',
+                    orientation: 'portrait',
+                    background_color: '#ffffff',
+                    theme_color: '#2ECC71',
+                    icons: [
+                        { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                        { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+                    ],
+                    categories: ['utilities', 'productivity'],
+                    lang: 'en',
+                    prefer_related_applications: false
+                };
+
+                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+                const manifestURL = URL.createObjectURL(manifestBlob);
+
+                const link = document.getElementById('manifest-link');
+                if (link) link.href = manifestURL;
+
+                // Also set theme-color meta
+                const metaTheme = document.querySelector('meta[name="theme-color"]');
+                if (metaTheme) metaTheme.content = '#2ECC71';
+            } catch (e) {
+                // Silently fail — PWA features are progressive enhancements
+                console.log('PWA manifest generation skipped:', e.message);
             }
-
-            const icon192 = generateIcon(192);
-            const icon512 = generateIcon(512);
-
-            // --- Build manifest ---
-            const manifest = {
-                name: 'Made for Africa',
-                short_name: '360 Topup',
-                description: 'Affordable data you can trust — MTN, GLO, Airtel, 9mobile',
-                start_url: location.href.split('?')[0] + '?utm_source=pwa',
-                display: 'standalone',
-                orientation: 'portrait',
-                background_color: '#ffffff',
-                theme_color: '#2ECC71',
-                icons: [
-                    { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-                    { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-                ],
-                categories: ['utilities', 'productivity'],
-                lang: 'en',
-                prefer_related_applications: false
-            };
-
-            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(manifestBlob);
-
-            const link = document.getElementById('manifest-link');
-            if (link) link.href = manifestURL;
-
-            // Also set theme-color meta
-            const metaTheme = document.querySelector('meta[name="theme-color"]');
-            if (metaTheme) metaTheme.content = '#2ECC71';
         })();
 
         // ============================================================
-        // 2. SERVICE WORKER REGISTRATION
+        // 2. SERVICE WORKER REGISTRATION (HTTP/HTTPS safe)
         // ============================================================
         (function registerSW() {
-            if ('serviceWorker' in navigator) {
+            try {
+                // Service Workers require HTTPS (or localhost). Skip on HTTP or file://
+                const isSecure = location.protocol === 'https:' ||
+                    location.protocol === 'chrome-extension:' ||
+                    location.hostname === 'localhost' ||
+                    location.hostname === '127.0.0.1' ||
+                    location.hostname === '[::1]';
+
+                if (!isSecure || !('serviceWorker' in navigator)) {
+                    console.log('Service Worker skipped (non-HTTPS or unsupported browser)');
+                    return;
+                }
+
                 // Generate sw.js dynamically so it can cache the manifest URL
                 const swCode = `
-                    const CACHE_NAME = '360-topup-v2';
+                    const CACHE_NAME = '360-topup-v3';
                     const ASSETS = [
                         location.origin + location.pathname,
-                        // The manifest URL will be injected dynamically
                     ];
 
                     // Inject the current manifest URL
@@ -2843,6 +2859,7 @@
                                     return cache.addAll(urls);
                                 })
                                 .then(() => self.skipWaiting())
+                                .catch(() => { /* ignore cache failures */ })
                         );
                     });
 
@@ -2869,12 +2886,11 @@
                                             if (e.request.url.startsWith('http')) {
                                                 cache.put(e.request, clone);
                                             }
-                                        });
+                                        }).catch(() => {});
                                         return fetchRes;
                                     });
                                 })
                                 .catch(() => {
-                                    // Offline fallback
                                     if (e.request.mode === 'navigate') {
                                         return caches.match(location.origin + location.pathname);
                                     }
@@ -2889,12 +2905,15 @@
 
                 navigator.serviceWorker.register(swURL, { scope: '/' })
                     .then(() => console.log('Service Worker registered'))
-                    .catch(err => console.warn('SW registration failed:', err));
+                    .catch(err => console.warn('SW registration failed (graceful fallback):', err.message));
+            } catch (e) {
+                // Entirely optional — app works without SW
+                console.log('Service Worker setup skipped:', e.message);
             }
         })();
 
         // ============================================================
-        // 3. INSTALL BANNER
+        // 3. INSTALL BANNER (works on HTTP/HTTPS with fallback)
         // ============================================================
         (function setupInstallBanner() {
             const banner = document.getElementById('install-banner');
@@ -2915,7 +2934,7 @@
                 return;
             }
 
-            // Listen for beforeinstallprompt
+            // Listen for beforeinstallprompt (only fires on HTTPS with PWA support)
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -2942,8 +2961,8 @@
                         }
                         deferredPrompt = null;
                     } else {
-                        // Fallback: try to open in browser
-                        alert('Installation not available. Please use the browser\'s "Add to Home Screen" option.');
+                        // Fallback: inform user about manual install
+                        alert('Installation not available. Please use your browser\'s "Add to Home Screen" option.');
                         banner.classList.remove('show');
                         localStorage.setItem('installBannerDismissed', 'true');
                     }
@@ -2955,6 +2974,13 @@
                 banner.classList.remove('show');
                 localStorage.setItem('installBannerDismissed', 'true');
             }
+
+            // If no beforeinstallprompt fired after 8s and banner isn't shown, hide it
+            setTimeout(() => {
+                if (!banner.classList.contains('show')) {
+                    // Keep hidden
+                }
+            }, 8000);
         })();
 
         // ============================================================
@@ -3206,7 +3232,7 @@
         }
 
         // ============================================================
-        // 10. GAME HUB (HTML file 2)
+        // 10. GAME HUB (HTML file 2) - HTTP/HTTPS safe using Blob URLs
         // ============================================================
         const gamesData = {
             1: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Brick Breaker Responsive 2026</title><style>*{box-sizing:border-box;}body{background:#090d16;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;margin:0;font-family:sans-serif;overflow:hidden;color:#fff;padding:10px;}.wrapper{display:flex;flex-direction:column;align-items:center;background:#111827;padding:15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);width:100%;max-width:600px;}#ui{display:flex;justify-content:space-between;width:100%;margin-bottom:10px;font-size:clamp(16px,4vw,20px);font-weight:bold;color:#00f0ff;}.canvas-area{position:relative;width:100%;aspect-ratio:600 / 400;}canvas{background:#1f2937;border:3px solid #374151;border-radius:8px;width:100%;height:100%;display:block;}.ctrls{display:flex;gap:10px;width:100%;margin-top:15px;}.btn{flex:1;padding:clamp(12px,3vw,18px);font-size:clamp(16px,4vw,20px);font-weight:bold;color:#fff;background:#374151;border:none;border-radius:8px;cursor:pointer;user-select:none;touch-action:manipulation;}.btn:active{background:#00f0ff;color:#000;}#over{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:8px;opacity:0;pointer-events:none;transition:opacity 0.2s;}#over.active{opacity:1;pointer-events:auto;}#over h2{font-size:clamp(24px,6vw,36px);margin:0 0 15px 0;}#over button{padding:10px 25px;font-size:16px;font-weight:bold;background:#00f0ff;border:none;border-radius:20px;cursor:pointer;}</style></head><body><div class="wrapper"><div id="ui"><div>SCORE: <span id="score">0</span></div></div><div class="canvas-area"><canvas id="gameCanvas"></canvas><div id="over"><h2 id="title">GAME OVER</h2><button onclick="location.reload()">REPLAY</button></div></div><div class="ctrls"><button class="btn" id="lBtn">◀ LEFT</button><button class="btn" id="rBtn">RIGHT ▶</button></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");const scoreEl=document.getElementById("score");const over=document.getElementById("over");const title=document.getElementById("title");canvas.width=600;canvas.height=400;let score=0,gameRunning=true,kL=false,kR=false;const ball={x:300,y:350,dx:5,dy:-5,r:7};const pad={h:12,w:90,x:255,speed:8};const brick={rows:5,cols:7,w:75,h:20,pad:9,top:40,left:24};const colors=["#ff0055","#ff7700","#ffcc00","#00ff66","#00ffff"];const bricks=Array.from({length:brick.cols},()=>Array.from({length:brick.rows},()=>({x:0,y:0,status:1})));for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){bricks[c][r].x=(c*(brick.w+brick.pad))+brick.left;bricks[c][r].y=(r*(brick.h+brick.pad))+brick.top;}}document.addEventListener("mousemove",(e)=>{let rect=canvas.getBoundingClientRect();let x=(e.clientX-rect.left)*(canvas.width/rect.width);if(x>0&&x<canvas.width)pad.x=x-pad.w/2;});document.addEventListener("keydown",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=true;if(e.key==="ArrowRight"||e.key==="d")kR=true;});document.addEventListener("keyup",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=false;if(e.key==="ArrowRight"||e.key==="d")kR=false;});const setupBtn=(btn,stateSetter)=>{btn.addEventListener("mousedown",()=>stateSetter(true));btn.addEventListener("mouseup",()=>stateSetter(false));btn.addEventListener("touchstart",(e)=>{e.preventDefault();stateSetter(true);});btn.addEventListener("touchend",()=>stateSetter(false));};setupBtn(document.getElementById("lBtn"),(v)=>kL=v);setupBtn(document.getElementById("rBtn"),(v)=>kR=v);function draw(){if(!gameRunning)return;ctx.clearRect(0,0,canvas.width,canvas.height);for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){let b=bricks[c][r];if(b.status===1){if(ball.x>b.x&&ball.x<b.x+brick.w&&ball.y>b.y&&ball.y<b.y+brick.h){ball.dy=-ball.dy;b.status=0;score+=10;scoreEl.innerText=score;if(score===350){gameRunning=false;title.innerText="VICTORY!";title.style.color="#00f0ff";over.classList.add("active");}}ctx.fillStyle=colors[r];ctx.fillRect(b.x,b.y,brick.w,brick.h);}}}if(kL&&pad.x>0)pad.x-=pad.speed;if(kR&&pad.x<canvas.width-pad.w)pad.x+=pad.speed;ctx.fillStyle="#00f0ff";ctx.fillRect(pad.x,canvas.height-pad.h-10,pad.w,pad.h);ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();if(ball.x+ball.dx>canvas.width-ball.r||ball.x+ball.dx<ball.r)ball.dx=-ball.dx;if(ball.y+ball.dy<ball.r)ball.dy=-ball.dy;else if(ball.y+ball.dy>canvas.height-ball.r-10){if(ball.x>pad.x&&ball.x<pad.x+pad.w){let hitPoint=ball.x-(pad.x+pad.w/2);ball.dx=hitPoint*0.15;ball.dy=-ball.dy;}else{gameRunning=false;over.classList.add("active");}}ball.x+=ball.dx;ball.y+=ball.dy;requestAnimationFrame(draw);}draw();<\/script></body></html>`,
@@ -3222,18 +3248,33 @@
         const frame = document.getElementById('game-frame');
 
         function launchGame(id) {
-            const content = gamesData[id];
-            if (!content) return;
-            const blob = new Blob([content], { type: 'text/html' });
-            frame.src = URL.createObjectURL(blob);
-            overlay.style.display = 'block';
-            document.body.style.overflow = 'hidden';
+            try {
+                const content = gamesData[id];
+                if (!content) return;
+                // Use a Blob URL – works on both HTTP and HTTPS
+                const blob = new Blob([content], { type: 'text/html; charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                frame.src = url;
+                overlay.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            } catch (e) {
+                alert('Game could not be loaded. Please try again.');
+                console.warn('Game load error:', e);
+            }
         }
 
         function closeGame() {
-            overlay.style.display = 'none';
-            frame.src = '';
-            document.body.style.overflow = 'auto';
+            try {
+                overlay.style.display = 'none';
+                // Revoke the blob URL to free memory
+                if (frame.src && frame.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(frame.src);
+                }
+                frame.src = '';
+                document.body.style.overflow = 'auto';
+            } catch (e) {
+                // Ignore
+            }
         }
 
         // ============================================================
@@ -3258,7 +3299,17 @@
         function copyTicketCode() {
             if (!isCodeGenerated) return;
             const code = ticketCodeEl.innerText;
-            navigator.clipboard.writeText(code).catch(() => {});
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(code).catch(() => {});
+            } else {
+                // Fallback for older browsers
+                const area = document.createElement('textarea');
+                area.value = code;
+                document.body.appendChild(area);
+                area.select();
+                try { document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(area);
+            }
         }
 
         function sendToWhatsAppPremium() {
@@ -3302,10 +3353,22 @@
             });
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    navigator.clipboard.writeText(shareUrl).then(() => {
-                        alert('Link copied to clipboard!');
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(shareUrl).then(() => {
+                            alert('Link copied to clipboard!');
+                            if (shareMenu) shareMenu.classList.remove('active');
+                        }).catch(() => alert('Failed to copy.'));
+                    } else {
+                        // Fallback
+                        const area = document.createElement('textarea');
+                        area.value = shareUrl;
+                        document.body.appendChild(area);
+                        area.select();
+                        try { document.execCommand('copy');
+                            alert('Link copied to clipboard!'); } catch (e) { alert('Failed to copy.'); }
+                        document.body.removeChild(area);
                         if (shareMenu) shareMenu.classList.remove('active');
-                    }).catch(() => alert('Failed to copy.'));
+                    }
                 });
             }
         });
