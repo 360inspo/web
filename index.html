@@ -216,7 +216,7 @@
             text-align: center;
         }
 
-        /* ===== STARTUP OVERLAY ===== */
+        /* ===== STARTUP OVERLAY (unchanged) ===== */
         #startup-overlay {
             position: fixed;
             top: 0;
@@ -1146,7 +1146,7 @@
             margin-bottom: 12px;
             border: 1px solid #e2e8f0;
             line-height: 1.4;
-            animation: bubbleFadeCycle 3s ease-in-out forwards;
+            animation: bubbleFadeCycle 5s ease-in-out forwards;
             text-align: left;
         }
         @keyframes bubbleFadeCycle {
@@ -1154,11 +1154,11 @@
                 opacity: 0;
                 transform: translateY(10px) scale(0.95);
             }
-            15% {
+            10% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
-            80% {
+            85% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
@@ -1209,9 +1209,14 @@
             background-color: #db2777;
         }
         .whatsapp-fab svg {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             color: #ffffff;
+            stroke: #ffffff;
+            stroke-width: 1.8;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
         }
 
         /* ===== HTML FILE 1: PROMOTE BUSINESS ===== */
@@ -1926,8 +1931,8 @@
                 height: 54px;
             }
             .whatsapp-fab svg {
-                width: 28px;
-                height: 28px;
+                width: 30px;
+                height: 30px;
             }
             #bottom-nav {
                 height: 62px;
@@ -2414,12 +2419,12 @@
                 <span id="bubbleContent">Welcome to 360 Topup! Take advantage of our best data deals today.<br><br><em>Which data did you wish to purchase?</em></span>
             </div>
             <a href="https://wa.me/2347039732869?text=Hi%2C%20thanks%20for%20choosing%20360Topup%2C%0AWhich%20network%20%26%20data%20plan%20would%20you%20like%20to%20purchase%20so%20i%20can%20assist%20you%20process%20it%20the%20moment%20i%20reply%21" target="_blank" class="whatsapp-fab">
+                <!-- Woman SVG icon -->
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"></path>
-                    <path d="M19 12v-2a7 7 0 0 0-14 0v2"></path>
-                    <path d="M18 20.5a6 6 0 0 0-12 0"></path>
-                    <circle cx="20" cy="14" r="2"></circle>
-                    <circle cx="4" cy="14" r="2"></circle>
+                    <circle cx="12" cy="7" r="3.5"/>
+                    <path d="M12 10.5c-3 0-5 2-5 3.5v2h10v-2c0-1.5-2-3.5-5-3.5z"/>
+                    <path d="M7 16l-2 5h14l-2-5"/>
+                    <path d="M9 5.5c.3-.8 1-1.5 3-1.5s2.7.7 3 1.5"/>
                 </svg>
             </a>
         </div>
@@ -2758,93 +2763,77 @@
         // 1. PWA MANIFEST GENERATION (with canvas icon)
         // ============================================================
         (function generatePWA() {
-            try {
-                // --- Generate icon using canvas ---
-                function generateIcon(size) {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = size;
-                    canvas.height = size;
-                    const ctx = canvas.getContext('2d');
+            // --- Generate icon using canvas ---
+            function generateIcon(size) {
+                const canvas = document.createElement('canvas');
+                canvas.width = size;
+                canvas.height = size;
+                const ctx = canvas.getContext('2d');
 
-                    // White background
-                    ctx.fillStyle = '#ffffff';
-                    ctx.fillRect(0, 0, size, size);
+                // White background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, size, size);
 
-                    // Green text: "360topup"
-                    ctx.fillStyle = '#2ECC71';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
+                // Green text: "360topup"
+                ctx.fillStyle = '#2ECC71';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
 
-                    const fontSize = size * 0.24;
-                    ctx.font = 'bold ' + fontSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
-                    ctx.fillText('360', size / 2, size * 0.42);
-                    const subSize = size * 0.13;
-                    ctx.font = 'bold ' + subSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
-                    ctx.fillStyle = '#1a7a3a';
-                    ctx.fillText('topup', size / 2, size * 0.68);
+                const fontSize = size * 0.24;
+                ctx.font = 'bold ' + fontSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                ctx.fillText('360', size / 2, size * 0.42);
+                const subSize = size * 0.13;
+                ctx.font = 'bold ' + subSize + 'px "Segoe UI", "Helvetica Neue", sans-serif';
+                ctx.fillStyle = '#1a7a3a';
+                ctx.fillText('topup', size / 2, size * 0.68);
 
-                    return canvas.toDataURL('image/png');
-                }
-
-                const icon192 = generateIcon(192);
-                const icon512 = generateIcon(512);
-
-                // --- Build manifest ---
-                const manifest = {
-                    name: 'Made for Africa',
-                    short_name: '360 Topup',
-                    description: 'Affordable data you can trust — MTN, GLO, Airtel, 9mobile',
-                    start_url: location.href.split('?')[0] + '?utm_source=pwa',
-                    display: 'standalone',
-                    orientation: 'portrait',
-                    background_color: '#ffffff',
-                    theme_color: '#2ECC71',
-                    icons: [
-                        { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-                        { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-                    ],
-                    categories: ['utilities', 'productivity'],
-                    lang: 'en',
-                    prefer_related_applications: false
-                };
-
-                const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-                const manifestURL = URL.createObjectURL(manifestBlob);
-
-                const link = document.getElementById('manifest-link');
-                if (link) link.href = manifestURL;
-
-                // Also set theme-color meta
-                const metaTheme = document.querySelector('meta[name="theme-color"]');
-                if (metaTheme) metaTheme.content = '#2ECC71';
-            } catch (e) {
-                // Silently fail — PWA features are progressive enhancements
-                console.log('PWA manifest generation skipped:', e.message);
+                return canvas.toDataURL('image/png');
             }
+
+            const icon192 = generateIcon(192);
+            const icon512 = generateIcon(512);
+
+            // --- Build manifest ---
+            const manifest = {
+                name: 'Made for Africa',
+                short_name: '360TopUp',
+                description: 'Affordable data you can trust — MTN, GLO, Airtel, 9mobile',
+                start_url: location.href.split('?')[0] + '?utm_source=pwa',
+                display: 'standalone',
+                orientation: 'portrait',
+                background_color: '#ffffff',
+                theme_color: '#2ECC71',
+                icons: [
+                    { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+                    { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+                ],
+                categories: ['utilities', 'productivity'],
+                lang: 'en',
+                prefer_related_applications: false
+            };
+
+            const manifestBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+            const manifestURL = URL.createObjectURL(manifestBlob);
+
+            const link = document.getElementById('manifest-link');
+            if (link) link.href = manifestURL;
+
+            // Also set theme-color meta
+            const metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) metaTheme.content = '#2ECC71';
         })();
 
         // ============================================================
-        // 2. SERVICE WORKER REGISTRATION (HTTP/HTTPS safe)
+        // 2. SERVICE WORKER REGISTRATION
         // ============================================================
         (function registerSW() {
-            try {
-                // Service Workers require HTTPS (or localhost). Skip on HTTP or file://
-                const isSecure = location.protocol === 'https:' ||
-                    location.protocol === 'chrome-extension:' ||
-                    location.hostname === 'localhost' ||
-                    location.hostname === '127.0.0.1' ||
-                    location.hostname === '[::1]';
-
-                if (!isSecure || !('serviceWorker' in navigator)) {
-                    console.log('Service Worker skipped (non-HTTPS or unsupported browser)');
-                    return;
-                }
-
+            if ('serviceWorker' in navigator) {
                 // Generate sw.js dynamically so it can cache the manifest URL
                 const swCode = `
-                    const CACHE_NAME = '360-topup-v3';
+                    const CACHE_NAME = '360-topup-v2';
                     const ASSETS = [
                         location.origin + location.pathname,
+                        // The manifest URL will be injected dynamically
                     ];
 
                     // Inject the current manifest URL
@@ -2859,7 +2848,6 @@
                                     return cache.addAll(urls);
                                 })
                                 .then(() => self.skipWaiting())
-                                .catch(() => { /* ignore cache failures */ })
                         );
                     });
 
@@ -2886,11 +2874,12 @@
                                             if (e.request.url.startsWith('http')) {
                                                 cache.put(e.request, clone);
                                             }
-                                        }).catch(() => {});
+                                        });
                                         return fetchRes;
                                     });
                                 })
                                 .catch(() => {
+                                    // Offline fallback
                                     if (e.request.mode === 'navigate') {
                                         return caches.match(location.origin + location.pathname);
                                     }
@@ -2905,15 +2894,12 @@
 
                 navigator.serviceWorker.register(swURL, { scope: '/' })
                     .then(() => console.log('Service Worker registered'))
-                    .catch(err => console.warn('SW registration failed (graceful fallback):', err.message));
-            } catch (e) {
-                // Entirely optional — app works without SW
-                console.log('Service Worker setup skipped:', e.message);
+                    .catch(err => console.warn('SW registration failed:', err));
             }
         })();
 
         // ============================================================
-        // 3. INSTALL BANNER (works on HTTP/HTTPS with fallback)
+        // 3. INSTALL BANNER
         // ============================================================
         (function setupInstallBanner() {
             const banner = document.getElementById('install-banner');
@@ -2934,7 +2920,7 @@
                 return;
             }
 
-            // Listen for beforeinstallprompt (only fires on HTTPS with PWA support)
+            // Listen for beforeinstallprompt
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
@@ -2961,8 +2947,9 @@
                         }
                         deferredPrompt = null;
                     } else {
-                        // Fallback: inform user about manual install
-                        alert('Installation not available. Please use your browser\'s "Add to Home Screen" option.');
+                        // Fallback: try to open in browser
+                        // No alert - silently inform via console
+                        console.log('Installation not available. Use "Add to Home Screen".');
                         banner.classList.remove('show');
                         localStorage.setItem('installBannerDismissed', 'true');
                     }
@@ -2974,13 +2961,6 @@
                 banner.classList.remove('show');
                 localStorage.setItem('installBannerDismissed', 'true');
             }
-
-            // If no beforeinstallprompt fired after 8s and banner isn't shown, hide it
-            setTimeout(() => {
-                if (!banner.classList.contains('show')) {
-                    // Keep hidden
-                }
-            }, 8000);
         })();
 
         // ============================================================
@@ -3064,7 +3044,7 @@
             const userVal = captchaInput.value.trim().toUpperCase();
             const correct = captchaBox.textContent;
             if (userVal === correct) {
-                alert('Success! Verification pass approved.');
+                // Success - no popup, proceed directly
                 document.getElementById('verification-overlay-wrapper').style.display = 'none';
                 const loading = document.getElementById('loading-overlay');
                 loading.style.display = 'flex';
@@ -3079,7 +3059,7 @@
                     triggerBubbleCommentRotation();
                 }, 1200);
             } else {
-                alert('Verification failed. Please try again.');
+                // Silent failure - just regenerate
                 generateCaptcha();
             }
         });
@@ -3171,7 +3151,7 @@
         }
 
         // ============================================================
-        // 9. SUPPORT BUBBLE
+        // 9. SUPPORT BUBBLE (35 comments, 5s interval)
         // ============================================================
         let commentInterval = null;
         const randomComments = [
@@ -3199,7 +3179,17 @@
             "Enjoy uninterrupted connection with 360 TopUp!",
             "Need assistance with verification or login?",
             "Super affordable 2GB weekly bundles available!",
-            "Tap any data price row to instantly order on WhatsApp!"
+            "Tap any data price row to instantly order on WhatsApp!",
+            "Get 50MB free when you refer a friend!",
+            "Our SME plans are perfect for small businesses.",
+            "Need a large data bundle? We've got you covered.",
+            "Daily plans starting from just N95!",
+            "MTN, GLO, Airtel, 9mobile — all available here.",
+            "Top up in seconds with our quick-pay system.",
+            "We offer the best data prices in Nigeria.",
+            "Stay connected with 360 TopUp — always reliable.",
+            "Your data, delivered instantly. No delays.",
+            "Trusted by thousands of happy customers nationwide."
         ];
 
         function triggerBubbleCommentRotation() {
@@ -3212,9 +3202,9 @@
                 const text = randomComments[idx];
                 bubble.style.animation = 'none';
                 bubble.offsetHeight;
-                bubble.style.animation = 'bubbleFadeCycle 3s ease-in-out forwards';
+                bubble.style.animation = 'bubbleFadeCycle 5s ease-in-out forwards';
                 content.innerHTML = '<em>' + text + '</em>';
-            }, 3000);
+            }, 5000);
         }
 
         function dismissBubble() {
@@ -3232,14 +3222,14 @@
         }
 
         // ============================================================
-        // 10. GAME HUB (HTML file 2) - HTTP/HTTPS safe using Blob URLs
+        // 10. GAME HUB (HTML file 2) - all alerts removed
         // ============================================================
         const gamesData = {
             1: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Brick Breaker Responsive 2026</title><style>*{box-sizing:border-box;}body{background:#090d16;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;margin:0;font-family:sans-serif;overflow:hidden;color:#fff;padding:10px;}.wrapper{display:flex;flex-direction:column;align-items:center;background:#111827;padding:15px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.5);width:100%;max-width:600px;}#ui{display:flex;justify-content:space-between;width:100%;margin-bottom:10px;font-size:clamp(16px,4vw,20px);font-weight:bold;color:#00f0ff;}.canvas-area{position:relative;width:100%;aspect-ratio:600 / 400;}canvas{background:#1f2937;border:3px solid #374151;border-radius:8px;width:100%;height:100%;display:block;}.ctrls{display:flex;gap:10px;width:100%;margin-top:15px;}.btn{flex:1;padding:clamp(12px,3vw,18px);font-size:clamp(16px,4vw,20px);font-weight:bold;color:#fff;background:#374151;border:none;border-radius:8px;cursor:pointer;user-select:none;touch-action:manipulation;}.btn:active{background:#00f0ff;color:#000;}#over{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;justify-content:center;align-items:center;border-radius:8px;opacity:0;pointer-events:none;transition:opacity 0.2s;}#over.active{opacity:1;pointer-events:auto;}#over h2{font-size:clamp(24px,6vw,36px);margin:0 0 15px 0;}#over button{padding:10px 25px;font-size:16px;font-weight:bold;background:#00f0ff;border:none;border-radius:20px;cursor:pointer;}</style></head><body><div class="wrapper"><div id="ui"><div>SCORE: <span id="score">0</span></div></div><div class="canvas-area"><canvas id="gameCanvas"></canvas><div id="over"><h2 id="title">GAME OVER</h2><button onclick="location.reload()">REPLAY</button></div></div><div class="ctrls"><button class="btn" id="lBtn">◀ LEFT</button><button class="btn" id="rBtn">RIGHT ▶</button></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");const scoreEl=document.getElementById("score");const over=document.getElementById("over");const title=document.getElementById("title");canvas.width=600;canvas.height=400;let score=0,gameRunning=true,kL=false,kR=false;const ball={x:300,y:350,dx:5,dy:-5,r:7};const pad={h:12,w:90,x:255,speed:8};const brick={rows:5,cols:7,w:75,h:20,pad:9,top:40,left:24};const colors=["#ff0055","#ff7700","#ffcc00","#00ff66","#00ffff"];const bricks=Array.from({length:brick.cols},()=>Array.from({length:brick.rows},()=>({x:0,y:0,status:1})));for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){bricks[c][r].x=(c*(brick.w+brick.pad))+brick.left;bricks[c][r].y=(r*(brick.h+brick.pad))+brick.top;}}document.addEventListener("mousemove",(e)=>{let rect=canvas.getBoundingClientRect();let x=(e.clientX-rect.left)*(canvas.width/rect.width);if(x>0&&x<canvas.width)pad.x=x-pad.w/2;});document.addEventListener("keydown",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=true;if(e.key==="ArrowRight"||e.key==="d")kR=true;});document.addEventListener("keyup",(e)=>{if(e.key==="ArrowLeft"||e.key==="a")kL=false;if(e.key==="ArrowRight"||e.key==="d")kR=false;});const setupBtn=(btn,stateSetter)=>{btn.addEventListener("mousedown",()=>stateSetter(true));btn.addEventListener("mouseup",()=>stateSetter(false));btn.addEventListener("touchstart",(e)=>{e.preventDefault();stateSetter(true);});btn.addEventListener("touchend",()=>stateSetter(false));};setupBtn(document.getElementById("lBtn"),(v)=>kL=v);setupBtn(document.getElementById("rBtn"),(v)=>kR=v);function draw(){if(!gameRunning)return;ctx.clearRect(0,0,canvas.width,canvas.height);for(let c=0;c<brick.cols;c++){for(let r=0;r<brick.rows;r++){let b=bricks[c][r];if(b.status===1){if(ball.x>b.x&&ball.x<b.x+brick.w&&ball.y>b.y&&ball.y<b.y+brick.h){ball.dy=-ball.dy;b.status=0;score+=10;scoreEl.innerText=score;if(score===350){gameRunning=false;title.innerText="VICTORY!";title.style.color="#00f0ff";over.classList.add("active");}}ctx.fillStyle=colors[r];ctx.fillRect(b.x,b.y,brick.w,brick.h);}}}if(kL&&pad.x>0)pad.x-=pad.speed;if(kR&&pad.x<canvas.width-pad.w)pad.x+=pad.speed;ctx.fillStyle="#00f0ff";ctx.fillRect(pad.x,canvas.height-pad.h-10,pad.w,pad.h);ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fillStyle="#fff";ctx.fill();if(ball.x+ball.dx>canvas.width-ball.r||ball.x+ball.dx<ball.r)ball.dx=-ball.dx;if(ball.y+ball.dy<ball.r)ball.dy=-ball.dy;else if(ball.y+ball.dy>canvas.height-ball.r-10){if(ball.x>pad.x&&ball.x<pad.x+pad.w){let hitPoint=ball.x-(pad.x+pad.w/2);ball.dx=hitPoint*0.15;ball.dy=-ball.dy;}else{gameRunning=false;over.classList.add("active");}}ball.x+=ball.dx;ball.y+=ball.dy;requestAnimationFrame(draw);}draw();<\/script></body></html>`,
             2: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Sky Dodge 2026</title><style>html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#0b1d3a;font-family:'Orbitron','Segoe UI',sans-serif;color:white;user-select:none;-webkit-user-select:none;}canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;z-index:1;}#hud{position:absolute;top:20px;left:20px;right:20px;display:flex;justify-content:space-between;pointer-events:none;text-transform:uppercase;letter-spacing:2px;z-index:10;}.hud-box{background:rgba(11,29,58,0.7);padding:10px 20px;border:1px solid rgba(0,212,255,0.3);border-radius:8px;font-size:1rem;backdrop-filter:blur(4px);}#score{color:#00d4ff;font-weight:bold;}.msg{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);text-align:center;background:rgba(6,15,30,0.95);padding:30px 40px;border-radius:12px;border:2px solid #ff4d4d;box-shadow:0 0 30px rgba(255,77,77,0.5);display:none;backdrop-filter:blur(8px);z-index:20;width:85%;max-width:400px;box-sizing:border-box;}.msg h1{margin:0 0 10px 0;color:#ff4d4d;font-size:2.2rem;letter-spacing:3px;}.btn-restart{padding:12px 25px;background:#00d4ff;border:none;color:#020208;font-weight:bold;text-transform:uppercase;cursor:pointer;border-radius:6px;width:100%;letter-spacing:1px;font-size:1rem;margin-top:10px;}#controls{position:absolute;bottom:40px;left:0;width:100%;display:flex;justify-content:space-between;padding:0 40px;box-sizing:border-box;z-index:10;pointer-events:none;}.ctrl-btn{width:85px;height:85px;background:rgba(255,255,255,0.03);border:2px solid rgba(0,212,255,0.3);border-radius:50%;color:rgba(0,212,255,0.6);font-size:2rem;display:flex;align-items:center;justify-content:center;cursor:pointer;outline:none;pointer-events:auto;touch-action:manipulation;backdrop-filter:blur(2px);transition:all 0.1s ease;}.ctrl-btn:active{background:rgba(0,212,255,0.25);border-color:#00d4ff;color:#ffffff;transform:scale(0.9);box-shadow:0 0 20px rgba(0,212,255,0.4);}</style></head><body><div id="hud"><div class="hud-box">Airspace: <span id="sector">Echo</span></div><div class="hud-box">Score: <span id="score">0</span></div></div><div id="gameOver" class="msg"><h1>MAYDAY MAYDAY</h1><p>Aircraft structure critically compromised by storm debris.</p><button class="btn-restart" onclick="resetGame()">Deploy New Aircraft</button></div><div id="controls"><div class="ctrl-btn" id="leftBtn">◀</div><div class="ctrl-btn" id="rightBtn">▶</div></div><canvas id="gameCanvas"></canvas><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const gameOverEl=document.getElementById('gameOver');const leftBtn=document.getElementById('leftBtn');const rightBtn=document.getElementById('rightBtn');let score=0;let gameActive=true;let enemies=[];let stars=[];let player={x:0,y:0,size:22,targetX:0,speed:14};let enemySpeed=4.5;let spawnRate=0.05;let moveLeft=false;let moveRight=false;function initStars(){stars=[];const starCount=Math.floor((canvas.width*canvas.height)/15000);for(let i=0;i<Math.max(starCount,30);i++){stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:1+Math.random()*3,speed:1+Math.random()*3});}}function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;player.y=canvas.height-130;if(!player.x){player.x=canvas.width/2;player.targetX=player.x;}initStars();}window.addEventListener('resize',resize);const updatePos=(e)=>{if(!gameActive)return;const clientX=e.clientX||(e.touches?e.touches[0].clientX:player.x);player.targetX=clientX;};window.addEventListener('mousemove',updatePos);window.addEventListener('touchmove',(e)=>{if(e.target.classList.contains('ctrl-btn'))return;e.preventDefault();updatePos(e);},{passive:false});leftBtn.addEventListener('touchstart',(e)=>{e.preventDefault();moveLeft=true;});leftBtn.addEventListener('touchend',()=>moveLeft=false);leftBtn.addEventListener('mousedown',()=>moveLeft=true);window.addEventListener('mouseup',()=>moveLeft=false);rightBtn.addEventListener('touchstart',(e)=>{e.preventDefault();moveRight=true;});rightBtn.addEventListener('touchend',()=>moveRight=false);rightBtn.addEventListener('mousedown',()=>moveRight=true);function spawnEnemy(){if(Math.random()<spawnRate){enemies.push({x:Math.random()*canvas.width,y:-40,size:12+Math.random()*25,color:Math.random()>0.3?'#e06666':'#f6b26b',rotation:Math.random()*Math.PI,rotSpeed:(Math.random()-0.5)*0.05});}}function resetGame(){score=0;enemies=[];enemySpeed=4.5;spawnRate=0.05;player.x=canvas.width/2;player.targetX=player.x;gameActive=true;gameOverEl.style.display='none';}function update(){if(!gameActive)return;if(moveLeft)player.targetX-=player.speed;if(moveRight)player.targetX+=player.speed;player.x+=(player.targetX-player.x)*0.22;if(player.x<player.size)player.x=player.size;if(player.x>canvas.width-player.size)player.x=canvas.width-player.size;spawnEnemy();score++;scoreEl.innerText=Math.floor(score/10);enemySpeed+=0.0012;spawnRate+=0.000012;stars.forEach(star=>{star.y+=star.speed;if(star.y>canvas.height)star.y=0;});enemies.forEach((enemy,index)=>{enemy.y+=enemySpeed;enemy.rotation+=enemy.rotSpeed;const dx=player.x-enemy.x;const dy=player.y-enemy.y;const distance=Math.sqrt(dx*dx+dy*dy);if(distance<(player.size*0.75)+enemy.size){gameActive=false;gameOverEl.style.display='block';}if(enemy.y>canvas.height+40)enemies.splice(index,1);});}function draw(){ctx.fillStyle='rgba(11, 29, 58, 0.45)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='rgba(255, 255, 255, 0.4)';stars.forEach(star=>{ctx.fillRect(star.x,star.y,star.size,star.size);});if(gameActive){ctx.shadowBlur=10;ctx.shadowColor='#ff7700';let leftGlow=ctx.createRadialGradient(player.x-6,player.y+12,1,player.x-6,player.y+24,8);leftGlow.addColorStop(0,'rgba(255, 200, 0, 1)');leftGlow.addColorStop(1,'rgba(255, 50, 0, 0)');ctx.fillStyle=leftGlow;ctx.beginPath();ctx.arc(player.x-6,player.y+15,10,0,Math.PI*2);ctx.fill();let rightGlow=ctx.createRadialGradient(player.x+6,player.y+12,1,player.x+6,player.y+24,8);rightGlow.addColorStop(0,'rgba(255, 200, 0, 1)');rightGlow.addColorStop(1,'rgba(255, 50, 0, 0)');ctx.fillStyle=rightGlow;ctx.beginPath();ctx.arc(player.x+6,player.y+15,10,0,Math.PI*2);ctx.fill();}ctx.shadowBlur=15;ctx.shadowColor='#00d4ff';ctx.fillStyle='#eef7ff';ctx.save();ctx.translate(player.x,player.y);ctx.beginPath();ctx.moveTo(0,-22);ctx.lineTo(-4,-14);ctx.lineTo(-4,12);ctx.lineTo(4,12);ctx.lineTo(4,-14);ctx.closePath();ctx.fill();ctx.fillStyle='#00d4ff';ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(-24,8);ctx.lineTo(-22,12);ctx.lineTo(-4,6);ctx.moveTo(4,-4);ctx.lineTo(24,8);ctx.lineTo(22,12);ctx.lineTo(4,6);ctx.closePath();ctx.fill();ctx.fillStyle='#eef7ff';ctx.beginPath();ctx.moveTo(-4,10);ctx.lineTo(-11,16);ctx.lineTo(-11,18);ctx.lineTo(0,15);ctx.lineTo(11,18);ctx.lineTo(11,16);ctx.lineTo(4,10);ctx.closePath();ctx.fill();ctx.restore();enemies.forEach((enemy,index)=>{ctx.shadowColor=enemy.color;ctx.shadowBlur=10;ctx.fillStyle=enemy.color;ctx.save();ctx.translate(enemy.x,enemy.y);ctx.rotate(enemy.rotation);ctx.beginPath();for(let i=0; i<6;i++){let angle=(i*Math.PI)/3;let variance=(index+i)%3===0?0.85:1.15;let radius=enemy.size*variance;ctx.lineTo(Math.cos(angle)*radius,Math.sin(angle)*radius);}ctx.closePath();ctx.fill();ctx.restore();});ctx.shadowBlur=0;update();requestAnimationFrame(draw);}resize();draw();<\/script></body></html>`,
             3: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Neon Jump 2026</title><style>body{margin:0;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;color:white;font-family:sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none;}#game-container{position:relative;display:flex;flex-direction:column;align-items:center;}canvas{border:2px solid #ff00ff;box-shadow:0 0 20px #ff00ff;background:#050505;max-width:100vw;max-height:70vh;}#ui{position:absolute;top:20px;font-size:24px;text-shadow:0 0 10px #ff00ff;pointer-events:none;z-index:10;}#game-over-banner{display:none;position:absolute;top:35%;left:50%;transform:translate(-50%,-50%);background:rgba(5,5,5,0.9);border:3px solid #ff0033;box-shadow:0 0 30px #ff0033;padding:30px;text-align:center;border-radius:15px;z-index:20;width:250px;animation:popIn 0.3s ease-out forwards;}@keyframes popIn{0%{transform:translate(-50%,-50%) scale(0.8);opacity:0;}100%{transform:translate(-50%,-50%) scale(1);opacity:1;}}#game-over-banner h1{margin:0 0 10px 0;color:#ff0033;text-shadow:0 0 15px #ff0033;font-size:28px;}#game-over-banner p{margin:0 0 20px 0;font-size:18px;text-shadow:0 0 10px #ffffff;}.restart-btn{background:rgba(0,255,255,0.1);border:2px solid #00ffff;color:#00ffff;padding:10px 20px;font-size:16px;font-weight:bold;border-radius:5px;cursor:pointer;text-shadow:0 0 5px #00ffff;box-shadow:0 0 10px rgba(0,255,255,0.5);transition:0.1s;}.restart-btn:active{background:rgba(0,255,255,0.4);box-shadow:0 0 20px #00ffff;}#controls{display:flex;justify-content:space-between;width:100%;max-width:400px;margin-top:20px;padding:0 10px;box-sizing:border-box;}.btn{width:45%;height:60px;background:rgba(255,0,255,0.1);border:2px solid #ff00ff;border-radius:10px;color:#ff00ff;font-size:20px;font-weight:bold;text-shadow:0 0 5px #ff00ff;box-shadow:0 0 10px rgba(255,0,255,0.5);display:flex;justify-content:center;align-items:center;cursor:pointer;transition:background 0.1s,transform 0.1s;touch-action:manipulation;}.btn:active{background:rgba(255,0,255,0.4);transform:scale(0.95);box-shadow:0 0 20px #ff00ff;}</style></head><body><div id="game-container"><div id="ui">Altitude: <span id="score">0</span></div><div id="game-over-banner"><h1>GAME OVER</h1><p>Final Score: <span id="finalScore">0</span></p><button class="restart-btn" onclick="resetGame()">PLAY AGAIN</button></div><canvas id="gameCanvas"></canvas><div id="controls"><div id="leftBtn" class="btn">◀ LEFT</div><div id="rightBtn" class="btn">RIGHT ▶</div></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");canvas.width=400;canvas.height=600;let score=0;let platforms=[];let player={x:200,y:300,w:20,h:20,dy:0,dx:0};let gravity=0.3;let jumpPower=-10;let keys={};let isGameOver=false;let touchLeft=false;let touchRight=false;function initGame(){score=0;isGameOver=false;document.getElementById("score").innerText=score;document.getElementById("game-over-banner").style.display="none";player.x=200;player.y=300;player.dx=0;player.dy=0;platforms=[];for(let i=0;i<7;i++){platforms.push({x:Math.random()*(canvas.width-60),y:i*100,w:60,h:10});}}window.addEventListener("keydown",e=>keys[e.code]=true);window.addEventListener("keyup",e=>keys[e.code]=false);const leftBtn=document.getElementById("leftBtn");const rightBtn=document.getElementById("rightBtn");leftBtn.addEventListener("mousedown",()=>touchLeft=true);leftBtn.addEventListener("mouseup",()=>touchLeft=false);leftBtn.addEventListener("touchstart",(e)=>{e.preventDefault();touchLeft=true;});leftBtn.addEventListener("touchend",(e)=>{e.preventDefault();touchLeft=false;});rightBtn.addEventListener("mousedown",()=>touchRight=true);rightBtn.addEventListener("mouseup",()=>touchRight=false);rightBtn.addEventListener("touchstart",(e)=>{e.preventDefault();touchRight=true;});rightBtn.addEventListener("touchend",(e)=>{e.preventDefault();touchRight=false;});window.addEventListener("mouseup",()=>{touchLeft=false;touchRight=false;});window.addEventListener("touchend",()=>{touchLeft=false;touchRight=false;});function update(){if(isGameOver)return;if(keys["ArrowLeft"]||touchLeft)player.dx=-5;else if(keys["ArrowRight"]||touchRight)player.dx=5;else player.dx*=0.8;player.x+=player.dx;player.dy+=gravity;player.y+=player.dy;if(player.x>canvas.width)player.x=0;if(player.x<0)player.x=canvas.width;platforms.forEach(p=>{if(player.dy>0&&player.x<p.x+p.w&&player.x+player.w>p.x&&player.y+player.h>p.y&&player.y+player.h<p.y+p.h+10){player.dy=jumpPower;}});if(player.y<canvas.height/2){let diff=canvas.height/2-player.y;player.y=canvas.height/2;score+=Math.floor(diff);document.getElementById("score").innerText=score;platforms.forEach(p=>{p.y+=diff;if(p.y>canvas.height){p.y=0;p.x=Math.random()*(canvas.width-60);}});}if(player.y>canvas.height){isGameOver=true;document.getElementById("finalScore").innerText=score;document.getElementById("game-over-banner").style.display="block";}}function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#00ffff";ctx.shadowBlur=10;ctx.shadowColor="#00ffff";ctx.fillRect(player.x,player.y,player.w,player.h);ctx.fillStyle="#ff00ff";ctx.shadowColor="#ff00ff";platforms.forEach(p=>ctx.fillRect(p.x,p.y,p.w,p.h));update();requestAnimationFrame(draw);}function resetGame(){initGame();}initGame();draw();<\/script></body></html>`,
             4: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Responsive Paddle Game</title><style>*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;}body{background:linear-gradient(135deg,#f5f7fa 0%,#e4e8f0 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:15px;font-family:'Segoe UI',sans-serif;overflow:hidden;}#game-wrapper{width:100%;max-width:600px;display:flex;flex-direction:column;gap:15px;}#game-container{position:relative;width:100%;padding-top:66.66%;box-shadow:0 20px 40px rgba(0,0,0,0.15);border-radius:12px;overflow:hidden;background:#141622;}canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;}#ui{position:absolute;top:15px;left:15px;color:#fff;font-size:18px;font-weight:600;pointer-events:none;z-index:5;text-shadow:0 2px 4px rgba(0,0,0,0.5);}#score{color:#00ffcc;font-size:22px;}#controls-panel{display:flex;justify-content:space-between;gap:15px;width:100%;}.nav-btn{flex:1;background:#ffffff;border:2px solid #141622;color:#141622;padding:18px;font-size:20px;font-weight:bold;border-radius:10px;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.05);transition:background 0.1s,transform 0.1s;display:flex;justify-content:center;align-items:center;touch-action:manipulation;}.nav-btn:active{background:#e4e8f0;transform:scale(0.97);}#game-over-screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(20,22,34,0.85);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:10;}#game-over-screen.visible{opacity:1;pointer-events:auto;}#game-over-screen h1{color:#ff4a5a;margin:0 0 10px 0;font-size:32px;letter-spacing:2px;}#game-over-screen p{color:#fff;font-size:16px;margin:0 0 20px 0;}#restart-btn{background:#00ffcc;color:#141622;border:none;padding:10px 25px;font-size:16px;font-weight:bold;border-radius:25px;cursor:pointer;box-shadow:0 4px 15px rgba(0,255,204,0.4);}</style></head><body><div id="game-wrapper"><div id="game-container"><div id="ui">Score: <span id="score">0</span></div><canvas id="gameCanvas"></canvas><div id="game-over-screen"><h1>GAME OVER</h1><p>Final Score: <span id="final-score">0</span></p><button id="restart-btn" onclick="resetGame()">Play Again</button></div></div><div id="controls-panel"><button class="nav-btn" id="leftBtn">◀ Left</button><button class="nav-btn" id="rightBtn">Right ▶</button></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");const scoreEl=document.getElementById("score");const gameOverScreen=document.getElementById("game-over-screen");const finalScoreEl=document.getElementById("final-score");const leftBtn=document.getElementById("leftBtn");const rightBtn=document.getElementById("rightBtn");canvas.width=600;canvas.height=400;let score=0;let gameOver=false;let ball={x:300,y:200,dx:4,dy:-4,radius:8};let paddle={width:110,height:12,x:245,radius:6,speed:7};let trail=[];const maxTrailLength=7;let isMovingLeft=false;let isMovingRight=false;document.addEventListener("mousemove",(e)=>{const rect=canvas.getBoundingClientRect();const relativeX=(e.clientX-rect.left)*(canvas.width/rect.width);paddle.x=relativeX-paddle.width/2;});const startLeft=()=>isMovingLeft=true;const stopLeft=()=>isMovingLeft=false;const startRight=()=>isMovingRight=true;const stopRight=()=>isMovingRight=false;leftBtn.addEventListener("mousedown",startLeft);leftBtn.addEventListener("mouseup",stopLeft);leftBtn.addEventListener("touchstart",(e)=>{e.preventDefault();startLeft();});leftBtn.addEventListener("touchend",stopLeft);rightBtn.addEventListener("mousedown",startRight);rightBtn.addEventListener("mouseup",stopRight);rightBtn.addEventListener("touchstart",(e)=>{e.preventDefault();startRight();});rightBtn.addEventListener("touchend",stopRight);function update(){if(gameOver)return;if(isMovingLeft)paddle.x-=paddle.speed;if(isMovingRight)paddle.x+=paddle.speed;if(paddle.x<0)paddle.x=0;if(paddle.x+paddle.width>canvas.width)paddle.x=canvas.width-paddle.width;trail.push({x:ball.x,y:ball.y});if(trail.length>maxTrailLength)trail.shift();ball.x+=ball.dx;ball.y+=ball.dy;if(ball.x+ball.radius>canvas.width||ball.x-ball.radius<0){ball.dx*=-1;ball.x=ball.x-ball.radius<0?ball.radius:canvas.width-ball.radius;}if(ball.y-ball.radius<0){ball.dy*=-1;ball.y=ball.radius;}const paddleY=canvas.height-paddle.height-10;if(ball.y+ball.radius>paddleY&&ball.y-ball.radius<paddleY+paddle.height&&ball.x>paddle.x&&ball.x<paddle.x+paddle.width){if(ball.dy>0){ball.dy=-Math.abs(ball.dy);let hitPoint=(ball.x-(paddle.x+paddle.width/2))/(paddle.width/2);ball.dx=hitPoint*5+(ball.dx>0?1:-1);score++;scoreEl.innerText=score;ball.dx*=1.03;ball.dy*=1.03;}}if(ball.y-ball.radius>canvas.height){gameOver=true;finalScoreEl.innerText=score;gameOverScreen.classList.add("visible");}}function drawRoundedRect(x,y,width,height,radius,color){ctx.beginPath();ctx.moveTo(x+radius,y);ctx.lineTo(x+width-radius,y);ctx.quadraticCurveTo(x+width,y,x+width,y+radius);ctx.lineTo(x+width,y+height-radius);ctx.quadraticCurveTo(x+width,y+height,x+width-radius,y+height);ctx.lineTo(x+radius,y+height);ctx.quadraticCurveTo(x,y+height,x,y+height-radius);ctx.lineTo(x,y+radius);ctx.quadraticCurveTo(x,y,x+radius,y);ctx.closePath();ctx.fillStyle=color;ctx.fill();}function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle="rgba(255, 255, 255, 0.02)";ctx.lineWidth=1;for(let i=0;i<canvas.width;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,canvas.height);ctx.stroke();}for(let i=0;i<trail.length;i++){let opacity=(i+1)/trail.length*0.2;ctx.beginPath();ctx.arc(trail[i].x,trail[i].y,ball.radius*(0.6+i/trail.length*0.4),0,Math.PI*2);ctx.fillStyle=\`rgba(0, 255, 204, \${opacity})\`;ctx.fill();}ctx.beginPath();ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);ctx.shadowBlur=10;ctx.shadowColor="#00ffcc";ctx.fillStyle="#00ffcc";ctx.fill();ctx.shadowBlur=0;const paddleY=canvas.height-paddle.height-10;ctx.shadowBlur=8;ctx.shadowColor="#ff4a5a";drawRoundedRect(paddle.x,paddleY,paddle.width,paddle.height,paddle.radius,"#ff4a5a");ctx.shadowBlur=0;update();requestAnimationFrame(draw);}function resetGame(){score=0;scoreEl.innerText=score;gameOver=false;trail=[];ball={x:300,y:200,dx:4,dy:-4,radius:8};paddle.x=245;isMovingLeft=false;isMovingRight=false;gameOverScreen.classList.remove("visible");}draw();<\/script></body></html>`,
-            5: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><title>Retro Road Racer</title><style>body{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;background:radial-gradient(circle, #ffffff 0%, #e9ecef 100%);font-family:sans-serif;overflow:hidden;touch-action:manipulation;}.game-container{background:#ffffff;padding:24px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.08);display:flex;flex-direction:column;align-items:center;}#ui{font-family:monospace;color:#1a1a1a;font-size:26px;font-weight:900;margin-bottom:15px;letter-spacing:2px;background:#f8f9fa;padding:8px 24px;border-radius:50px;border:2px solid #e2e8f0;}#score{color:#ff3366;font-weight:bold;}canvas{border-radius:12px;max-width:90vw;max-height:55vh;background-color:#2c3e50;}.controls{display:flex;gap:30px;margin-top:25px;width:100%;justify-content:center;}.btn{width:75px;height:75px;background:linear-gradient(145deg,#ffffff,#e6e6e6);border:1px solid #dcdcdc;border-radius:20px;display:flex;justify-content:center;align-items:center;color:#333;font-size:32px;user-select:none;cursor:pointer;box-shadow:0 6px 0 #cbd5e1,0 12px 16px rgba(0,0,0,0.1);transition:all 0.1s ease;}.btn:active{box-shadow:0 2px 0 #cbd5e1,0 4px 6px rgba(0,0,0,0.1);transform:translateY(4px);background:#f1f5f9;}</style></head><body><div class="game-container"><div id="ui">SCORE: <span id="score">0</span></div><canvas id="gameCanvas"></canvas><div class="controls"><div class="btn" id="leftBtn">◀</div><div class="btn" id="rightBtn">▶</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreElement=document.getElementById('score');canvas.width=400;canvas.height=600;const carWidth=50;const carHeight=80;const laneWidth=canvas.width/3;let score=0;let gameActive=true;let speed=7;let dashOffset=0;const player={lane:1,x:0,y:canvas.height-130};const enemies=[];function drawCar(x,y,mainColor,isPlayer){ctx.fillStyle="#111111";ctx.fillRect(x-4,y+10,8,14);ctx.fillRect(x+carWidth-4,y+10,8,14);ctx.fillRect(x-4,y+54,8,14);ctx.fillRect(x+carWidth-4,y+54,8,14);ctx.fillStyle=mainColor;ctx.fillRect(x,y+8,carWidth,carHeight-16);ctx.fillRect(x+8,y,carWidth-16,carHeight);ctx.fillStyle="#222222";ctx.fillRect(x-2,y+carHeight-6,carWidth+4,6);ctx.fillStyle="#e0f2fe";ctx.fillRect(x+10,y+22,carWidth-20,12);ctx.fillStyle=isPlayer?"#059669":"#991b1b";ctx.fillRect(x+12,y+25,carWidth-24,8);ctx.fillStyle=isPlayer?"#fef08a":"#fca5a5";ctx.fillRect(x+6,y,6,4);ctx.fillRect(x+carWidth-12,y,6,4);}function spawnEnemy(){const lane=Math.floor(Math.random()*3);enemies.push({lane:lane,x:lane*laneWidth+(laneWidth-carWidth)/2,y:-100});}function update(){if(!gameActive)return;const targetX=player.lane*laneWidth+(laneWidth-carWidth)/2;player.x+=(targetX-player.x)*0.25;dashOffset+=speed;if(dashOffset>80)dashOffset=0;for(let i=enemies.length-1;i>=0;i--){enemies[i].y+=speed;if(player.x<enemies[i].x+carWidth-4&&player.x+carWidth-4>enemies[i].x&&player.y<enemies[i].y+carHeight-6&&player.y+carHeight-6>enemies[i].y){gameActive=false;setTimeout(()=>{alert("💥 CRASHED! FINAL SCORE: "+score);location.reload();},10);}if(enemies[i].y>canvas.height){enemies.splice(i,1);score++;scoreElement.innerText=score;if(score%5===0)speed+=0.7;}}}function draw(){ctx.fillStyle="#1e293b";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#facc15";ctx.fillRect(0,0,8,canvas.height);ctx.fillRect(canvas.width-8,0,8,canvas.height);ctx.setLineDash([40,40]);ctx.lineDashOffset=-dashOffset;ctx.strokeStyle="#94a3b8";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(laneWidth,0);ctx.lineTo(laneWidth,canvas.height);ctx.moveTo(laneWidth*2,0);ctx.lineTo(laneWidth*2,canvas.height);ctx.stroke();drawCar(player.x,player.y,"#10b981",true);enemies.forEach(enemy=>{drawCar(enemy.x,enemy.y,"#ef4444",false);});}function gameLoop(){update();draw();requestAnimationFrame(gameLoop);}const moveLeft=()=>{if(player.lane>0)player.lane--;};const moveRight=()=>{if(player.lane<2)player.lane++;};document.getElementById('leftBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveRight();});document.getElementById('leftBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveRight();});window.addEventListener('keydown',(e)=>{if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A")moveLeft();if(e.key==="ArrowRight"||e.key==="d"||e.key==="D")moveRight();});setInterval(()=>{if(gameActive)spawnEnemy();},1100);gameLoop();<\/script></body></html>`,
+            5: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><title>Retro Road Racer</title><style>body{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;background:radial-gradient(circle, #ffffff 0%, #e9ecef 100%);font-family:sans-serif;overflow:hidden;touch-action:manipulation;}.game-container{background:#ffffff;padding:24px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.08);display:flex;flex-direction:column;align-items:center;}#ui{font-family:monospace;color:#1a1a1a;font-size:26px;font-weight:900;margin-bottom:15px;letter-spacing:2px;background:#f8f9fa;padding:8px 24px;border-radius:50px;border:2px solid #e2e8f0;}#score{color:#ff3366;font-weight:bold;}canvas{border-radius:12px;max-width:90vw;max-height:55vh;background-color:#2c3e50;}.controls{display:flex;gap:30px;margin-top:25px;width:100%;justify-content:center;}.btn{width:75px;height:75px;background:linear-gradient(145deg,#ffffff,#e6e6e6);border:1px solid #dcdcdc;border-radius:20px;display:flex;justify-content:center;align-items:center;color:#333;font-size:32px;user-select:none;cursor:pointer;box-shadow:0 6px 0 #cbd5e1,0 12px 16px rgba(0,0,0,0.1);transition:all 0.1s ease;}.btn:active{box-shadow:0 2px 0 #cbd5e1,0 4px 6px rgba(0,0,0,0.1);transform:translateY(4px);background:#f1f5f9;}</style></head><body><div class="game-container"><div id="ui">SCORE: <span id="score">0</span></div><canvas id="gameCanvas"></canvas><div class="controls"><div class="btn" id="leftBtn">◀</div><div class="btn" id="rightBtn">▶</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreElement=document.getElementById('score');canvas.width=400;canvas.height=600;const carWidth=50;const carHeight=80;const laneWidth=canvas.width/3;let score=0;let gameActive=true;let speed=7;let dashOffset=0;const player={lane:1,x:0,y:canvas.height-130};const enemies=[];function drawCar(x,y,mainColor,isPlayer){ctx.fillStyle="#111111";ctx.fillRect(x-4,y+10,8,14);ctx.fillRect(x+carWidth-4,y+10,8,14);ctx.fillRect(x-4,y+54,8,14);ctx.fillRect(x+carWidth-4,y+54,8,14);ctx.fillStyle=mainColor;ctx.fillRect(x,y+8,carWidth,carHeight-16);ctx.fillRect(x+8,y,carWidth-16,carHeight);ctx.fillStyle="#222222";ctx.fillRect(x-2,y+carHeight-6,carWidth+4,6);ctx.fillStyle="#e0f2fe";ctx.fillRect(x+10,y+22,carWidth-20,12);ctx.fillStyle=isPlayer?"#059669":"#991b1b";ctx.fillRect(x+12,y+25,carWidth-24,8);ctx.fillStyle=isPlayer?"#fef08a":"#fca5a5";ctx.fillRect(x+6,y,6,4);ctx.fillRect(x+carWidth-12,y,6,4);}function spawnEnemy(){const lane=Math.floor(Math.random()*3);enemies.push({lane:lane,x:lane*laneWidth+(laneWidth-carWidth)/2,y:-100});}function update(){if(!gameActive)return;const targetX=player.lane*laneWidth+(laneWidth-carWidth)/2;player.x+=(targetX-player.x)*0.25;dashOffset+=speed;if(dashOffset>80)dashOffset=0;for(let i=enemies.length-1;i>=0;i--){enemies[i].y+=speed;if(player.x<enemies[i].x+carWidth-4&&player.x+carWidth-4>enemies[i].x&&player.y<enemies[i].y+carHeight-6&&player.y+carHeight-6>enemies[i].y){gameActive=false;setTimeout(()=>{location.reload();},10);}if(enemies[i].y>canvas.height){enemies.splice(i,1);score++;scoreElement.innerText=score;if(score%5===0)speed+=0.7;}}}function draw(){ctx.fillStyle="#1e293b";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#facc15";ctx.fillRect(0,0,8,canvas.height);ctx.fillRect(canvas.width-8,0,8,canvas.height);ctx.setLineDash([40,40]);ctx.lineDashOffset=-dashOffset;ctx.strokeStyle="#94a3b8";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(laneWidth,0);ctx.lineTo(laneWidth,canvas.height);ctx.moveTo(laneWidth*2,0);ctx.lineTo(laneWidth*2,canvas.height);ctx.stroke();drawCar(player.x,player.y,"#10b981",true);enemies.forEach(enemy=>{drawCar(enemy.x,enemy.y,"#ef4444",false);});}function gameLoop(){update();draw();requestAnimationFrame(gameLoop);}const moveLeft=()=>{if(player.lane>0)player.lane--;};const moveRight=()=>{if(player.lane<2)player.lane++;};document.getElementById('leftBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveRight();});document.getElementById('leftBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveRight();});window.addEventListener('keydown',(e)=>{if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A")moveLeft();if(e.key==="ArrowRight"||e.key==="d"||e.key==="D")moveRight();});setInterval(()=>{if(gameActive)spawnEnemy();},1100);gameLoop();<\/script></body></html>`,
             6: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Neon Space Defender</title><style>:root{--bg-color:#030712;--card-bg:#0f172a;--accent-cyan:#38bdf8;--accent-pink:#ec4899;--accent-purple:#a855f7;--accent-gold:#f59e0b;--text-main:#f8fafc;--text-muted:#94a3b8;}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none;}body{background-color:var(--bg-color);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0.75rem;touch-action:manipulation;}header{text-align:center;margin-bottom:0.5rem;}header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.app-wrapper{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.75rem;}.score-row{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:0.6rem 1rem;border-radius:12px;border:1px solid #1e293b;font-weight:600;font-size:0.85rem;}.score-val{color:var(--accent-cyan);font-size:1.1rem;font-weight:bold;}.canvas-container{position:relative;width:100%;background:var(--card-bg);border-radius:16px;overflow:hidden;border:2px solid #1e293b;box-shadow:0 10px 25px rgba(0,0,0,0.5);}canvas{display:block;width:100%;height:auto;background:#020617;cursor:crosshair;}.controls-hint{text-align:center;color:var(--text-muted);font-size:0.75rem;}.status-card{background:var(--card-bg);padding:0.85rem 1rem;border-radius:12px;border-left:4px solid var(--accent-purple);border-top:1px solid #1e293b;border-right:1px solid #1e293b;border-bottom:1px solid #1e293b;}.status-header{display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:700;color:var(--accent-purple);margin-bottom:0.3rem;}.status-box{font-style:italic;font-size:0.85rem;color:var(--text-main);min-height:38px;display:flex;align-items:center;line-height:1.3;}</style></head><body><header><h1>Neon Space Defender</h1></header><div class="app-wrapper"><div class="score-row"><span>SCORE: <span class="score-val" id="score">0</span></span><span>WAVE: <span class="score-val" id="wave" style="color: var(--accent-pink);">1</span></span><span>BEST: <span class="score-val" id="best" style="color: var(--accent-gold);">0</span></span></div><div class="canvas-container"><canvas id="gameCanvas" width="360" height="480"></canvas></div><div class="controls-hint">🚀 Drag finger or mouse to fly & auto-fire 🚀</div><div class="status-card"><div class="status-header"><span>📡 Fleet Comms</span></div><div class="status-box" id="comms-box">"Hostile meteors detected in orbit! Move your fighter to engage."</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const waveEl=document.getElementById('wave');const bestEl=document.getElementById('best');const commsBox=document.getElementById('comms-box');let gameState='START';let score=0;let wave=1;let highScore=localStorage.getItem('space_defender_best')||0;bestEl.textContent=highScore;let shakeTime=0;const player={x:canvas.width/2,y:400,radius:14,targetX:canvas.width/2,targetY:400,weapon:'SINGLE',weaponTimer:0,shield:false,shieldTimer:0,fireRate:8,fireCooldown:0};let lasers=[];let asteroids=[];let powerUps=[];let particles=[];let stars=[];for(let i=0;i<40;i++){stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,speed:Math.random()*1.5+0.5});}const messages={start:["Drag to steer ship. Collect power-ups to survive!"],triple:["TRIPLE LASER ACTIVATED! Firepower boosted!"],shield:["ENERGY SHIELD ENGAGED! Invulnerable temporarily!"],nuke:["SMART BOMB DETONATED! Sector wiped!"],waveUp:["WAVE CLEARED! Incoming faster asteroid cluster!"],lose:["Ship destroyed! Touch screen to launch backup fighter."]};function setComms(type){const list=messages[type];commsBox.textContent=\`"\${list[Math.floor(Math.random()*list.length)]}"\`;}function updateTargetPosition(e){const rect=canvas.getBoundingClientRect();const clientX=e.touches?e.touches[0].clientX:e.clientX;const clientY=e.touches?e.touches[0].clientY:e.clientY;player.targetX=clientX-rect.left;player.targetY=clientY-rect.top;if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';}}canvas.addEventListener('mousemove',updateTargetPosition);canvas.addEventListener('touchmove',(e)=>{e.preventDefault();updateTargetPosition(e);},{passive:false});canvas.addEventListener('click',()=>{if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';}});function spawnAsteroid(){const radius=Math.random()*16+12;asteroids.push({x:Math.random()*(canvas.width-radius*2)+radius,y:-radius,radius:radius,dx:(Math.random()-0.5)*(1+wave*0.2),dy:Math.random()*2+1.5+wave*0.3,hp:radius>22?2:1,color:radius>22?'#ec4899':'#a855f7',angle:0,rotSpeed:(Math.random()-0.5)*0.05});}function createExplosion(x,y,color,count=12){for(let i=0;i<count;i++){particles.push({x,y,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,radius:Math.random()*3+1,life:25,color});}}function spawnPowerUp(x,y){if(Math.random()<0.25){const types=['TRIPLE','SHIELD','NUKE'];powerUps.push({x,y,type:types[Math.floor(Math.random()*types.length)],radius:10,dy:1.5});}}function resetGame(){score=0;wave=1;scoreEl.textContent=0;waveEl.textContent=1;player.x=canvas.width/2;player.y=400;player.targetX=canvas.width/2;player.targetY=400;player.weapon='SINGLE';player.shield=false;lasers=[];asteroids=[];powerUps=[];particles=[];setComms('start');}function update(){stars.forEach(st=>{st.y+=st.speed;if(st.y>canvas.height)st.y=0;});if(gameState!=='PLAYING')return;player.x+=(player.targetX-player.x)*0.18;player.y+=(player.targetY-player.y)*0.18;player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));player.y=Math.max(player.radius+50,Math.min(canvas.height-player.radius,player.y));particles.push({x:player.x+(Math.random()-0.5)*8,y:player.y+player.radius,dx:(Math.random()-0.5)*0.8,dy:Math.random()*3+2,radius:Math.random()*2+1,life:15,color:'#38bdf8'});if(player.weaponTimer>0){player.weaponTimer--;if(player.weaponTimer<=0)player.weapon='SINGLE';}if(player.shieldTimer>0){player.shieldTimer--;if(player.shieldTimer<=0)player.shield=false;}player.fireCooldown--;if(player.fireCooldown<=0){player.fireCooldown=player.fireRate;if(player.weapon==='TRIPLE'){lasers.push({x:player.x,y:player.y-15,dx:0,dy:-8});lasers.push({x:player.x-8,y:player.y-12,dx:-2,dy:-7.5});lasers.push({x:player.x+8,y:player.y-12,dx:2,dy:-7.5});}else{lasers.push({x:player.x,y:player.y-15,dx:0,dy:-8});}}for(let i=lasers.length-1;i>=0;i--){let l=lasers[i];l.x+=l.dx;l.y+=l.dy;if(l.y<-10)lasers.splice(i,1);}if(Math.random()<0.03+wave*0.008){spawnAsteroid();}for(let i=powerUps.length-1;i>=0;i--){let p=powerUps[i];p.y+=p.dy;const dist=Math.hypot(p.x-player.x,p.y-player.y);if(dist<p.radius+player.radius){if(p.type==='TRIPLE'){player.weapon='TRIPLE';player.weaponTimer=400;setComms('triple');}else if(p.type==='SHIELD'){player.shield=true;player.shieldTimer=350;setComms('shield');}else if(p.type==='NUKE'){asteroids.forEach(a=>{createExplosion(a.x,a.y,a.color,10);score+=10;});asteroids=[];shakeTime=12;setComms('nuke');}createExplosion(p.x,p.y,'#f59e0b',8);powerUps.splice(i,1);continue;}if(p.y>canvas.height+20)powerUps.splice(i,1);}for(let aIdx=asteroids.length-1;aIdx>=0;aIdx--){let a=asteroids[aIdx];a.x+=a.dx;a.y+=a.dy;a.angle+=a.rotSpeed;for(let lIdx=lasers.length-1;lIdx>=0;lIdx--){let l=lasers[lIdx];const dist=Math.hypot(l.x-a.x,l.y-a.y);if(dist<a.radius){lasers.splice(lIdx,1);a.hp--;if(a.hp<=0){createExplosion(a.x,a.y,a.color,12);spawnPowerUp(a.x,a.y);score+=Math.round(a.radius);scoreEl.textContent=score;if(score>=wave*250){wave++;waveEl.textContent=wave;setComms('waveUp');}asteroids.splice(aIdx,1);}else{createExplosion(l.x,l.y,'#38bdf8',4);}break;}}if(a){const pDist=Math.hypot(a.x-player.x,a.y-player.y);if(pDist<a.radius+player.radius){if(player.shield){createExplosion(a.x,a.y,a.color,12);asteroids.splice(aIdx,1);shakeTime=6;}else{createExplosion(player.x,player.y,'#38bdf8',25);gameOver();}}else if(a.y>canvas.height+a.radius){asteroids.splice(aIdx,1);}}}particles.forEach((pt,idx)=>{pt.x+=pt.dx;pt.y+=pt.dy;pt.life--;if(pt.life<=0)particles.splice(idx,1);});if(shakeTime>0)shakeTime--;}function gameOver(){gameState='GAMEOVER';shakeTime=18;if(score>highScore){highScore=score;localStorage.setItem('space_defender_best',highScore);bestEl.textContent=highScore;}setComms('lose');}function draw(){ctx.save();if(shakeTime>0){const dx=(Math.random()-0.5)*8;const dy=(Math.random()-0.5)*8;ctx.translate(dx,dy);}ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#94a3b8';stars.forEach(st=>{ctx.beginPath();ctx.arc(st.x,st.y,st.size,0,Math.PI*2);ctx.fill();});particles.forEach(pt=>{ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#38bdf8';lasers.forEach(l=>{ctx.beginPath();ctx.arc(l.x,l.y,3,0,Math.PI*2);ctx.fill();});powerUps.forEach(p=>{ctx.fillStyle=p.type==='TRIPLE'?'#ec4899':p.type==='SHIELD'?'#38bdf8':'#f59e0b';ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffffff';ctx.lineWidth=1.5;ctx.stroke();});asteroids.forEach(a=>{ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);ctx.strokeStyle=a.color;ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<6;i++){const rad=a.radius*(0.8+Math.sin(i*2)*0.2);const angle=(i/6)*Math.PI*2;const x=Math.cos(angle)*rad;const y=Math.sin(angle)*rad;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.stroke();ctx.restore();});if(gameState==='PLAYING'){ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.moveTo(0,-player.radius);ctx.lineTo(player.radius,player.radius);ctx.lineTo(0,player.radius-4);ctx.lineTo(-player.radius,player.radius);ctx.closePath();ctx.fill();if(player.shield){ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,player.radius+8,0,Math.PI*2);ctx.stroke();}ctx.restore();}if(gameState==='START'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#38bdf8';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('TOUCH / DRAG TO LAUNCH',canvas.width/2,canvas.height/2);}else if(gameState==='GAMEOVER'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#ec4899';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('HULL DESTROYED',canvas.width/2,canvas.height/2-15);ctx.fillStyle='#f8fafc';ctx.font='14px sans-serif';ctx.fillText('Tap screen to redeploy fighter',canvas.width/2,canvas.height/2+15);}ctx.restore();}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`,
             7: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Neon Flappy Cyber</title><style>:root{--bg-color:#030712;--card-bg:#0f172a;--accent-cyan:#38bdf8;--accent-pink:#f43f5e;--accent-purple:#c084fc;--accent-gold:#f59e0b;--text-main:#f8fafc;--text-muted:#94a3b8;}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none;}body{background-color:var(--bg-color);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0.75rem;touch-action:manipulation;}header{text-align:center;margin-bottom:0.5rem;}header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.app-wrapper{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.75rem;}.score-row{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:0.6rem 1rem;border-radius:12px;border:1px solid #1e293b;font-weight:600;font-size:0.85rem;}.score-val{color:var(--accent-cyan);font-size:1.1rem;font-weight:bold;}.canvas-container{position:relative;width:100%;background:var(--card-bg);border-radius:16px;overflow:hidden;border:2px solid #1e293b;box-shadow:0 10px 25px rgba(0,0,0,0.5);}canvas{display:block;width:100%;height:auto;background:#020617;cursor:pointer;}.controls-hint{text-align:center;color:var(--text-muted);font-size:0.75rem;}.status-card{background:var(--card-bg);padding:0.85rem 1rem;border-radius:12px;border-left:4px solid var(--accent-purple);border-top:1px solid #1e293b;border-right:1px solid #1e293b;border-bottom:1px solid #1e293b;}.status-header{display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:700;color:var(--accent-purple);margin-bottom:0.3rem;}.status-box{font-style:italic;font-size:0.85rem;color:var(--text-main);min-height:38px;display:flex;align-items:center;line-height:1.3;}</style></head><body><header><h1>Neon Flappy Cyber</h1></header><div class="app-wrapper"><div class="score-row"><span>SCORE: <span class="score-val" id="score">0</span></span><span>Pipes: <span class="score-val" id="cleared" style="color: var(--accent-purple);">0</span></span><span>BEST: <span class="score-val" id="best" style="color: var(--accent-gold);">0</span></span></div><div class="canvas-container"><canvas id="gameCanvas" width="360" height="480"></canvas></div><div class="controls-hint">⚡ Tap screen or press Spacebar to boost thrust ⚡</div><div class="status-card"><div class="status-header"><span>🚁 Flight Control</span></div><div class="status-box" id="flight-box">"Tap to thrust! Thread through laser gates to maintain vector."</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const clearedEl=document.getElementById('cleared');const bestEl=document.getElementById('best');const flightBox=document.getElementById('flight-box');let gameState='START';let score=0;let pipesCleared=0;let highScore=localStorage.getItem('flappy_cyber_best')||0;bestEl.textContent=highScore;const bird={x:80,y:220,radius:12,velocity:0,gravity:0.38,jump:-6.5};let pipes=[];let particles=[];let frameCount=0;const pipeGap=130;const pipeWidth=46;const messages={start:["Tap or hit Space to fire vertical thrusters!"],pass:["Gate traversed! Altitude stable."],lose:["Collision detected! Tap screen to redeploy drone."]};function setFlightMsg(type){const list=messages[type];flightBox.textContent=\`"\${list[Math.floor(Math.random()*list.length)]}"\`;}function spawnPipe(){const minHeight=50;const maxHeight=canvas.height-pipeGap-minHeight;const topHeight=Math.floor(Math.random()*(maxHeight-minHeight+1))+minHeight;pipes.push({x:canvas.width,top:topHeight,bottom:canvas.height-topHeight-pipeGap,passed:false});}function createParticles(x,y,color,count=8){for(let i=0;i<count;i++){particles.push({x,y,dx:(Math.random()-0.5)*4,dy:(Math.random()-0.5)*4,radius:Math.random()*3+1,life:20,color});}}function handleBoost(){if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';return;}if(gameState==='PLAYING'){bird.velocity=bird.jump;createParticles(bird.x-6,bird.y+6,'#38bdf8',5);}}window.addEventListener('keydown',(e)=>{if(e.code==='Space'||e.key===' '){e.preventDefault();handleBoost();}});canvas.addEventListener('touchstart',(e)=>{e.preventDefault();handleBoost();},{passive:false});canvas.addEventListener('click',handleBoost);function resetGame(){score=0;pipesCleared=0;scoreEl.textContent=0;clearedEl.textContent=0;bird.y=220;bird.velocity=0;pipes=[];particles=[];frameCount=0;setFlightMsg('start');}function update(){if(gameState!=='PLAYING')return;frameCount++;bird.velocity+=bird.gravity;bird.y+=bird.velocity;if(frameCount%3===0){particles.push({x:bird.x-10,y:bird.y,dx:-2,dy:(Math.random()-0.5)*2,radius:Math.random()*2+1,life:15,color:'#c084fc'});}if(bird.y+bird.radius>=canvas.height||bird.y-bird.radius<=0){gameOver();return;}if(frameCount%90===0){spawnPipe();}for(let i=pipes.length-1;i>=0;i--){let p=pipes[i];p.x-=2.2;if(bird.x+bird.radius>p.x&&bird.x-bird.radius<p.x+pipeWidth){if(bird.y-bird.radius<p.top||bird.y+bird.radius>canvas.height-p.bottom){gameOver();return;}}if(!p.passed&&p.x+pipeWidth<bird.x){p.passed=true;score+=10;pipesCleared++;scoreEl.textContent=score;clearedEl.textContent=pipesCleared;createParticles(bird.x,bird.y,'#f59e0b',8);setFlightMsg('pass');}if(p.x+pipeWidth<0){pipes.splice(i,1);}}}function gameOver(){gameState='GAMEOVER';createParticles(bird.x,bird.y,'#f43f5e',20);if(score>highScore){highScore=score;localStorage.setItem('flappy_cyber_best',highScore);bestEl.textContent=highScore;}setFlightMsg('lose');}function draw(){ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);pipes.forEach(p=>{ctx.fillStyle='#c084fc';ctx.fillRect(p.x,0,pipeWidth,p.top);ctx.fillRect(p.x,canvas.height-p.bottom,pipeWidth,p.bottom);ctx.fillStyle='#f43f5e';ctx.fillRect(p.x-2,p.top-6,pipeWidth+4,6);ctx.fillRect(p.x-2,canvas.height-p.bottom,pipeWidth+4,6);});particles.forEach(pt=>{ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(bird.x+4,bird.y-2,4,0,Math.PI*2);ctx.fill();if(gameState==='START'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#c084fc';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('TAP OR SPACE TO BOOST',canvas.width/2,canvas.height/2);}else if(gameState==='GAMEOVER'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#f43f5e';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('CRASH DETECTED',canvas.width/2,canvas.height/2-15);ctx.fillStyle='#f8fafc';ctx.font='14px sans-serif';ctx.fillText('Tap screen or Space to reboot',canvas.width/2,canvas.height/2+15);}}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`
         };
@@ -3248,37 +3238,22 @@
         const frame = document.getElementById('game-frame');
 
         function launchGame(id) {
-            try {
-                const content = gamesData[id];
-                if (!content) return;
-                // Use a Blob URL – works on both HTTP and HTTPS
-                const blob = new Blob([content], { type: 'text/html; charset=utf-8' });
-                const url = URL.createObjectURL(blob);
-                frame.src = url;
-                overlay.style.display = 'block';
-                document.body.style.overflow = 'hidden';
-            } catch (e) {
-                alert('Game could not be loaded. Please try again.');
-                console.warn('Game load error:', e);
-            }
+            const content = gamesData[id];
+            if (!content) return;
+            const blob = new Blob([content], { type: 'text/html' });
+            frame.src = URL.createObjectURL(blob);
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
         }
 
         function closeGame() {
-            try {
-                overlay.style.display = 'none';
-                // Revoke the blob URL to free memory
-                if (frame.src && frame.src.startsWith('blob:')) {
-                    URL.revokeObjectURL(frame.src);
-                }
-                frame.src = '';
-                document.body.style.overflow = 'auto';
-            } catch (e) {
-                // Ignore
-            }
+            overlay.style.display = 'none';
+            frame.src = '';
+            document.body.style.overflow = 'auto';
         }
 
         // ============================================================
-        // 11. PREMIUM TICKET (HTML file 3)
+        // 11. PREMIUM TICKET (HTML file 3) - no alerts
         // ============================================================
         const ticketCodeEl = document.getElementById('ticketCode');
         let isCodeGenerated = false;
@@ -3299,28 +3274,22 @@
         function copyTicketCode() {
             if (!isCodeGenerated) return;
             const code = ticketCodeEl.innerText;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(code).catch(() => {});
-            } else {
-                // Fallback for older browsers
-                const area = document.createElement('textarea');
-                area.value = code;
-                document.body.appendChild(area);
-                area.select();
-                try { document.execCommand('copy'); } catch (e) {}
-                document.body.removeChild(area);
-            }
+            navigator.clipboard.writeText(code).catch(() => {});
         }
 
         function sendToWhatsAppPremium() {
-            if (!isCodeGenerated) { alert("Please generate a ticket code first!"); return; }
+            if (!isCodeGenerated) {
+                // Silent fail - just generate a code first
+                generateTicketCode();
+                return;
+            }
             const code = ticketCodeEl.innerText;
             const msg = 'Hello, I would like to verify my ticket code: ' + code;
             window.open('https://wa.me/2347039732869?text=' + encodeURIComponent(msg), '_blank');
         }
 
         // ============================================================
-        // 12. REFER (HTML file 4)
+        // 12. REFER (HTML file 4) - no alerts
         // ============================================================
         document.addEventListener('DOMContentLoaded', function() {
             const shareUrl = "https://tinyurl.com/360topup";
@@ -3353,22 +3322,13 @@
             });
             if (copyBtn) {
                 copyBtn.addEventListener('click', () => {
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(shareUrl).then(() => {
-                            alert('Link copied to clipboard!');
-                            if (shareMenu) shareMenu.classList.remove('active');
-                        }).catch(() => alert('Failed to copy.'));
-                    } else {
-                        // Fallback
-                        const area = document.createElement('textarea');
-                        area.value = shareUrl;
-                        document.body.appendChild(area);
-                        area.select();
-                        try { document.execCommand('copy');
-                            alert('Link copied to clipboard!'); } catch (e) { alert('Failed to copy.'); }
-                        document.body.removeChild(area);
+                    navigator.clipboard.writeText(shareUrl).then(() => {
+                        // Silent copy - no alert
                         if (shareMenu) shareMenu.classList.remove('active');
-                    }
+                    }).catch(() => {
+                        // Silent fail
+                        if (shareMenu) shareMenu.classList.remove('active');
+                    });
                 });
             }
         });
@@ -3415,7 +3375,7 @@
         });
 
         // ============================================================
-        // 14. STARTUP & INIT
+        // 14. STARTUP & INIT (splash 3s)
         // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('app-content').style.display = 'none';
@@ -3424,6 +3384,7 @@
 
             sortAndInjectDataPlans();
 
+            // Splash screen timeout: 3 seconds
             setTimeout(() => {
                 const overlay = document.getElementById('startup-overlay');
                 if (overlay) {
@@ -3435,7 +3396,7 @@
                         if (hub) hub.style.display = 'flex';
                     }, 500);
                 }
-            }, 10000);
+            }, 3000);
 
             document.getElementById('refreshBtn')?.addEventListener('click', generateCaptcha);
             generateCaptcha();
