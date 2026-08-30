@@ -2017,29 +2017,47 @@
             }
         }
 
-        /* ===== INSTALL BANNER ===== */
+        /* ===== INSTALL BANNER (Top) - appears after splash, hidden on auth success ===== */
         #install-banner {
             display: none;
             position: fixed;
-            bottom: 80px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: 0;
+            left: 0;
+            right: 0;
             background: #1e293b;
             color: #fff;
             padding: 12px 24px;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-            z-index: 9998;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 99999;
             font-size: 0.95rem;
             font-weight: 500;
             align-items: center;
             gap: 16px;
-            max-width: 92%;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 2px solid #2ECC71;
             backdrop-filter: blur(8px);
+            justify-content: center;
+            flex-wrap: wrap;
+            transition: opacity 0.4s ease, transform 0.4s ease;
         }
         #install-banner.show {
             display: flex;
+            animation: slideDownBanner 0.5s ease forwards;
+        }
+        #install-banner.hidden-banner {
+            display: flex;
+            opacity: 0;
+            transform: translateY(-100%);
+            pointer-events: none;
+        }
+        @keyframes slideDownBanner {
+            0% {
+                opacity: 0;
+                transform: translateY(-100%);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         #install-banner .app-icon-small {
             width: 40px;
@@ -2056,6 +2074,7 @@
         }
         #install-banner .banner-text {
             flex: 1;
+            min-width: 150px;
         }
         #install-banner .banner-text strong {
             display: block;
@@ -2097,12 +2116,9 @@
         }
         @media (max-width: 480px) {
             #install-banner {
-                bottom: 74px;
                 padding: 10px 16px;
                 font-size: 0.85rem;
-                flex-wrap: wrap;
-                justify-content: center;
-                border-radius: 12px;
+                gap: 10px;
             }
             #install-banner .app-icon-small {
                 width: 34px;
@@ -2342,7 +2358,8 @@
             <header><h1>360 Game² Hub</h1><p>Select a game below to launch directly into action</p></header>
             <div class="game-grid">
                 <div class="game-card"><div><span class="game-icon">🌌</span><div class="game-title">Neon Space Defender</div></div><button class="play-btn" onclick="launchGame(6)">Play Game</button></div>
-                <div class="game-card"><div><span class="game-icon">🦅</span><div class="game-title">Neon Flappy Cyber</div></div><button class="play-btn" onclick="launchGame(7)">Play Game</button></div>
+                <!-- Changed: 🦅 Neon Flappy Cyber → 🏀 Ball Dash -->
+                <div class="game-card"><div><span class="game-icon">🏀</span><div class="game-title">Ball Dash</div></div><button class="play-btn" onclick="launchGame(7)">Play Game</button></div>
                 <div class="game-card"><div><span class="game-icon">🧱</span><div class="game-title">Brick Breaker</div></div><button class="play-btn" onclick="launchGame(1)">Play Game</button></div>
                 <div class="game-card"><div><span class="game-icon">✈️</span><div class="game-title">Sky Dodge</div></div><button class="play-btn" onclick="launchGame(2)">Play Game</button></div>
                 <div class="game-card"><div><span class="game-icon">🚀</span><div class="game-title">Neon Jump</div></div><button class="play-btn" onclick="launchGame(3)">Play Game</button></div>
@@ -2747,7 +2764,7 @@
         </button>
     </nav>
 
-    <!-- ===== INSTALL BANNER ===== -->
+    <!-- ===== INSTALL BANNER (Top) ===== -->
     <div id="install-banner">
         <div class="app-icon-small">📱</div>
         <div class="banner-text">
@@ -2899,7 +2916,7 @@
         })();
 
         // ============================================================
-        // 3. INSTALL BANNER
+        // 3. INSTALL BANNER (Top) - shows after splash, hides on auth success
         // ============================================================
         (function setupInstallBanner() {
             const banner = document.getElementById('install-banner');
@@ -2907,28 +2924,43 @@
             const installBtn = document.getElementById('installBtn');
             let deferredPrompt = null;
 
-            // Close banner
-            if (closeBtn) {
-                closeBtn.addEventListener('click', () => {
-                    banner.classList.remove('show');
-                    localStorage.setItem('installBannerDismissed', 'true');
-                });
-            }
-
-            // Check if already dismissed
-            if (localStorage.getItem('installBannerDismissed') === 'true') {
-                return;
-            }
+            // We'll show the banner after splash screen ends (triggered from startup)
+            // Initially hidden; will be shown by showInstallBanner() after splash
 
             // Listen for beforeinstallprompt
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
                 deferredPrompt = e;
-                // Show banner after a small delay
-                setTimeout(() => {
-                    banner.classList.add('show');
-                }, 3000);
+                // Ensure banner is visible if not already hidden
+                if (!window.matchMedia('(display-mode: standalone)').matches) {
+                    showInstallBanner();
+                }
             });
+
+            // Function to show banner with animation
+            window.showInstallBanner = function() {
+                if (window.matchMedia('(display-mode: standalone)').matches) {
+                    banner.classList.remove('show');
+                    banner.classList.add('hidden-banner');
+                    return;
+                }
+                banner.classList.remove('hidden-banner');
+                banner.classList.add('show');
+            };
+
+            // Function to hide banner (called on auth success)
+            window.hideInstallBanner = function() {
+                banner.classList.remove('show');
+                banner.classList.add('hidden-banner');
+            };
+
+            // Close button
+            if (closeBtn) {
+                closeBtn.addEventListener('click', () => {
+                    banner.classList.remove('show');
+                    banner.classList.add('hidden-banner');
+                });
+            }
 
             // Install button
             if (installBtn) {
@@ -2939,19 +2971,17 @@
                         if (result.outcome === 'accepted') {
                             console.log('User accepted install');
                             banner.classList.remove('show');
-                            localStorage.setItem('installBannerDismissed', 'true');
+                            banner.classList.add('hidden-banner');
                         } else {
                             console.log('User dismissed install');
                             banner.classList.remove('show');
-                            localStorage.setItem('installBannerDismissed', 'true');
+                            banner.classList.add('hidden-banner');
                         }
                         deferredPrompt = null;
                     } else {
-                        // Fallback: try to open in browser
-                        // No alert - silently inform via console
                         console.log('Installation not available. Use "Add to Home Screen".');
                         banner.classList.remove('show');
-                        localStorage.setItem('installBannerDismissed', 'true');
+                        banner.classList.add('hidden-banner');
                     }
                 });
             }
@@ -2959,7 +2989,7 @@
             // Also hide banner if app is already installed (standalone mode)
             if (window.matchMedia('(display-mode: standalone)').matches) {
                 banner.classList.remove('show');
-                localStorage.setItem('installBannerDismissed', 'true');
+                banner.classList.add('hidden-banner');
             }
         })();
 
@@ -3013,6 +3043,8 @@
             activePendingUser = nameInput ? nameInput.value.trim() : "User";
             generateCaptcha();
             navigateToPage('verification-overlay-wrapper');
+            // Hide install banner when security check appears (user is about to login)
+            if (window.hideInstallBanner) window.hideInstallBanner();
         }
 
         function handleLogout() {
@@ -3023,6 +3055,10 @@
             document.getElementById('page-premium').classList.remove('active');
             document.getElementById('app-content').classList.remove('premium-locked');
             navigateToPage('landing-hub-wrapper');
+            // Show install banner again on logout (if not installed)
+            if (window.showInstallBanner) {
+                setTimeout(window.showInstallBanner, 500);
+            }
         }
 
         // ============================================================
@@ -3044,8 +3080,10 @@
             const userVal = captchaInput.value.trim().toUpperCase();
             const correct = captchaBox.textContent;
             if (userVal === correct) {
-                // Success - no popup, proceed directly
+                // Success - proceed to dashboard
                 document.getElementById('verification-overlay-wrapper').style.display = 'none';
+                // Ensure install banner is hidden
+                if (window.hideInstallBanner) window.hideInstallBanner();
                 const loading = document.getElementById('loading-overlay');
                 loading.style.display = 'flex';
                 setTimeout(() => {
@@ -3231,7 +3269,7 @@
             4: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>Responsive Paddle Game</title><style>*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;}body{background:linear-gradient(135deg,#f5f7fa 0%,#e4e8f0 100%);display:flex;justify-content:center;align-items:center;min-height:100vh;padding:15px;font-family:'Segoe UI',sans-serif;overflow:hidden;}#game-wrapper{width:100%;max-width:600px;display:flex;flex-direction:column;gap:15px;}#game-container{position:relative;width:100%;padding-top:66.66%;box-shadow:0 20px 40px rgba(0,0,0,0.15);border-radius:12px;overflow:hidden;background:#141622;}canvas{position:absolute;top:0;left:0;width:100%;height:100%;display:block;}#ui{position:absolute;top:15px;left:15px;color:#fff;font-size:18px;font-weight:600;pointer-events:none;z-index:5;text-shadow:0 2px 4px rgba(0,0,0,0.5);}#score{color:#00ffcc;font-size:22px;}#controls-panel{display:flex;justify-content:space-between;gap:15px;width:100%;}.nav-btn{flex:1;background:#ffffff;border:2px solid #141622;color:#141622;padding:18px;font-size:20px;font-weight:bold;border-radius:10px;cursor:pointer;box-shadow:0 4px 6px rgba(0,0,0,0.05);transition:background 0.1s,transform 0.1s;display:flex;justify-content:center;align-items:center;touch-action:manipulation;}.nav-btn:active{background:#e4e8f0;transform:scale(0.97);}#game-over-screen{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(20,22,34,0.85);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity 0.3s ease;z-index:10;}#game-over-screen.visible{opacity:1;pointer-events:auto;}#game-over-screen h1{color:#ff4a5a;margin:0 0 10px 0;font-size:32px;letter-spacing:2px;}#game-over-screen p{color:#fff;font-size:16px;margin:0 0 20px 0;}#restart-btn{background:#00ffcc;color:#141622;border:none;padding:10px 25px;font-size:16px;font-weight:bold;border-radius:25px;cursor:pointer;box-shadow:0 4px 15px rgba(0,255,204,0.4);}</style></head><body><div id="game-wrapper"><div id="game-container"><div id="ui">Score: <span id="score">0</span></div><canvas id="gameCanvas"></canvas><div id="game-over-screen"><h1>GAME OVER</h1><p>Final Score: <span id="final-score">0</span></p><button id="restart-btn" onclick="resetGame()">Play Again</button></div></div><div id="controls-panel"><button class="nav-btn" id="leftBtn">◀ Left</button><button class="nav-btn" id="rightBtn">Right ▶</button></div></div><script>const canvas=document.getElementById("gameCanvas");const ctx=canvas.getContext("2d");const scoreEl=document.getElementById("score");const gameOverScreen=document.getElementById("game-over-screen");const finalScoreEl=document.getElementById("final-score");const leftBtn=document.getElementById("leftBtn");const rightBtn=document.getElementById("rightBtn");canvas.width=600;canvas.height=400;let score=0;let gameOver=false;let ball={x:300,y:200,dx:4,dy:-4,radius:8};let paddle={width:110,height:12,x:245,radius:6,speed:7};let trail=[];const maxTrailLength=7;let isMovingLeft=false;let isMovingRight=false;document.addEventListener("mousemove",(e)=>{const rect=canvas.getBoundingClientRect();const relativeX=(e.clientX-rect.left)*(canvas.width/rect.width);paddle.x=relativeX-paddle.width/2;});const startLeft=()=>isMovingLeft=true;const stopLeft=()=>isMovingLeft=false;const startRight=()=>isMovingRight=true;const stopRight=()=>isMovingRight=false;leftBtn.addEventListener("mousedown",startLeft);leftBtn.addEventListener("mouseup",stopLeft);leftBtn.addEventListener("touchstart",(e)=>{e.preventDefault();startLeft();});leftBtn.addEventListener("touchend",stopLeft);rightBtn.addEventListener("mousedown",startRight);rightBtn.addEventListener("mouseup",stopRight);rightBtn.addEventListener("touchstart",(e)=>{e.preventDefault();startRight();});rightBtn.addEventListener("touchend",stopRight);function update(){if(gameOver)return;if(isMovingLeft)paddle.x-=paddle.speed;if(isMovingRight)paddle.x+=paddle.speed;if(paddle.x<0)paddle.x=0;if(paddle.x+paddle.width>canvas.width)paddle.x=canvas.width-paddle.width;trail.push({x:ball.x,y:ball.y});if(trail.length>maxTrailLength)trail.shift();ball.x+=ball.dx;ball.y+=ball.dy;if(ball.x+ball.radius>canvas.width||ball.x-ball.radius<0){ball.dx*=-1;ball.x=ball.x-ball.radius<0?ball.radius:canvas.width-ball.radius;}if(ball.y-ball.radius<0){ball.dy*=-1;ball.y=ball.radius;}const paddleY=canvas.height-paddle.height-10;if(ball.y+ball.radius>paddleY&&ball.y-ball.radius<paddleY+paddle.height&&ball.x>paddle.x&&ball.x<paddle.x+paddle.width){if(ball.dy>0){ball.dy=-Math.abs(ball.dy);let hitPoint=(ball.x-(paddle.x+paddle.width/2))/(paddle.width/2);ball.dx=hitPoint*5+(ball.dx>0?1:-1);score++;scoreEl.innerText=score;ball.dx*=1.03;ball.dy*=1.03;}}if(ball.y-ball.radius>canvas.height){gameOver=true;finalScoreEl.innerText=score;gameOverScreen.classList.add("visible");}}function drawRoundedRect(x,y,width,height,radius,color){ctx.beginPath();ctx.moveTo(x+radius,y);ctx.lineTo(x+width-radius,y);ctx.quadraticCurveTo(x+width,y,x+width,y+radius);ctx.lineTo(x+width,y+height-radius);ctx.quadraticCurveTo(x+width,y+height,x+width-radius,y+height);ctx.lineTo(x+radius,y+height);ctx.quadraticCurveTo(x,y+height,x,y+height-radius);ctx.lineTo(x,y+radius);ctx.quadraticCurveTo(x,y,x+radius,y);ctx.closePath();ctx.fillStyle=color;ctx.fill();}function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);ctx.strokeStyle="rgba(255, 255, 255, 0.02)";ctx.lineWidth=1;for(let i=0;i<canvas.width;i+=30){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,canvas.height);ctx.stroke();}for(let i=0;i<trail.length;i++){let opacity=(i+1)/trail.length*0.2;ctx.beginPath();ctx.arc(trail[i].x,trail[i].y,ball.radius*(0.6+i/trail.length*0.4),0,Math.PI*2);ctx.fillStyle=\`rgba(0, 255, 204, \${opacity})\`;ctx.fill();}ctx.beginPath();ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);ctx.shadowBlur=10;ctx.shadowColor="#00ffcc";ctx.fillStyle="#00ffcc";ctx.fill();ctx.shadowBlur=0;const paddleY=canvas.height-paddle.height-10;ctx.shadowBlur=8;ctx.shadowColor="#ff4a5a";drawRoundedRect(paddle.x,paddleY,paddle.width,paddle.height,paddle.radius,"#ff4a5a");ctx.shadowBlur=0;update();requestAnimationFrame(draw);}function resetGame(){score=0;scoreEl.innerText=score;gameOver=false;trail=[];ball={x:300,y:200,dx:4,dy:-4,radius:8};paddle.x=245;isMovingLeft=false;isMovingRight=false;gameOverScreen.classList.remove("visible");}draw();<\/script></body></html>`,
             5: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"><title>Retro Road Racer</title><style>body{display:flex;flex-direction:column;justify-content:center;align-items:center;height:100vh;margin:0;background:radial-gradient(circle, #ffffff 0%, #e9ecef 100%);font-family:sans-serif;overflow:hidden;touch-action:manipulation;}.game-container{background:#ffffff;padding:24px;border-radius:24px;box-shadow:0 20px 40px rgba(0,0,0,0.08);display:flex;flex-direction:column;align-items:center;}#ui{font-family:monospace;color:#1a1a1a;font-size:26px;font-weight:900;margin-bottom:15px;letter-spacing:2px;background:#f8f9fa;padding:8px 24px;border-radius:50px;border:2px solid #e2e8f0;}#score{color:#ff3366;font-weight:bold;}canvas{border-radius:12px;max-width:90vw;max-height:55vh;background-color:#2c3e50;}.controls{display:flex;gap:30px;margin-top:25px;width:100%;justify-content:center;}.btn{width:75px;height:75px;background:linear-gradient(145deg,#ffffff,#e6e6e6);border:1px solid #dcdcdc;border-radius:20px;display:flex;justify-content:center;align-items:center;color:#333;font-size:32px;user-select:none;cursor:pointer;box-shadow:0 6px 0 #cbd5e1,0 12px 16px rgba(0,0,0,0.1);transition:all 0.1s ease;}.btn:active{box-shadow:0 2px 0 #cbd5e1,0 4px 6px rgba(0,0,0,0.1);transform:translateY(4px);background:#f1f5f9;}</style></head><body><div class="game-container"><div id="ui">SCORE: <span id="score">0</span></div><canvas id="gameCanvas"></canvas><div class="controls"><div class="btn" id="leftBtn">◀</div><div class="btn" id="rightBtn">▶</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreElement=document.getElementById('score');canvas.width=400;canvas.height=600;const carWidth=50;const carHeight=80;const laneWidth=canvas.width/3;let score=0;let gameActive=true;let speed=7;let dashOffset=0;const player={lane:1,x:0,y:canvas.height-130};const enemies=[];function drawCar(x,y,mainColor,isPlayer){ctx.fillStyle="#111111";ctx.fillRect(x-4,y+10,8,14);ctx.fillRect(x+carWidth-4,y+10,8,14);ctx.fillRect(x-4,y+54,8,14);ctx.fillRect(x+carWidth-4,y+54,8,14);ctx.fillStyle=mainColor;ctx.fillRect(x,y+8,carWidth,carHeight-16);ctx.fillRect(x+8,y,carWidth-16,carHeight);ctx.fillStyle="#222222";ctx.fillRect(x-2,y+carHeight-6,carWidth+4,6);ctx.fillStyle="#e0f2fe";ctx.fillRect(x+10,y+22,carWidth-20,12);ctx.fillStyle=isPlayer?"#059669":"#991b1b";ctx.fillRect(x+12,y+25,carWidth-24,8);ctx.fillStyle=isPlayer?"#fef08a":"#fca5a5";ctx.fillRect(x+6,y,6,4);ctx.fillRect(x+carWidth-12,y,6,4);}function spawnEnemy(){const lane=Math.floor(Math.random()*3);enemies.push({lane:lane,x:lane*laneWidth+(laneWidth-carWidth)/2,y:-100});}function update(){if(!gameActive)return;const targetX=player.lane*laneWidth+(laneWidth-carWidth)/2;player.x+=(targetX-player.x)*0.25;dashOffset+=speed;if(dashOffset>80)dashOffset=0;for(let i=enemies.length-1;i>=0;i--){enemies[i].y+=speed;if(player.x<enemies[i].x+carWidth-4&&player.x+carWidth-4>enemies[i].x&&player.y<enemies[i].y+carHeight-6&&player.y+carHeight-6>enemies[i].y){gameActive=false;setTimeout(()=>{location.reload();},10);}if(enemies[i].y>canvas.height){enemies.splice(i,1);score++;scoreElement.innerText=score;if(score%5===0)speed+=0.7;}}}function draw(){ctx.fillStyle="#1e293b";ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle="#facc15";ctx.fillRect(0,0,8,canvas.height);ctx.fillRect(canvas.width-8,0,8,canvas.height);ctx.setLineDash([40,40]);ctx.lineDashOffset=-dashOffset;ctx.strokeStyle="#94a3b8";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(laneWidth,0);ctx.lineTo(laneWidth,canvas.height);ctx.moveTo(laneWidth*2,0);ctx.lineTo(laneWidth*2,canvas.height);ctx.stroke();drawCar(player.x,player.y,"#10b981",true);enemies.forEach(enemy=>{drawCar(enemy.x,enemy.y,"#ef4444",false);});}function gameLoop(){update();draw();requestAnimationFrame(gameLoop);}const moveLeft=()=>{if(player.lane>0)player.lane--;};const moveRight=()=>{if(player.lane<2)player.lane++;};document.getElementById('leftBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('touchstart',(e)=>{e.preventDefault();moveRight();});document.getElementById('leftBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveLeft();});document.getElementById('rightBtn').addEventListener('mousedown',(e)=>{e.preventDefault();moveRight();});window.addEventListener('keydown',(e)=>{if(e.key==="ArrowLeft"||e.key==="a"||e.key==="A")moveLeft();if(e.key==="ArrowRight"||e.key==="d"||e.key==="D")moveRight();});setInterval(()=>{if(gameActive)spawnEnemy();},1100);gameLoop();<\/script></body></html>`,
             6: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Neon Space Defender</title><style>:root{--bg-color:#030712;--card-bg:#0f172a;--accent-cyan:#38bdf8;--accent-pink:#ec4899;--accent-purple:#a855f7;--accent-gold:#f59e0b;--text-main:#f8fafc;--text-muted:#94a3b8;}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none;}body{background-color:var(--bg-color);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0.75rem;touch-action:manipulation;}header{text-align:center;margin-bottom:0.5rem;}header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.app-wrapper{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.75rem;}.score-row{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:0.6rem 1rem;border-radius:12px;border:1px solid #1e293b;font-weight:600;font-size:0.85rem;}.score-val{color:var(--accent-cyan);font-size:1.1rem;font-weight:bold;}.canvas-container{position:relative;width:100%;background:var(--card-bg);border-radius:16px;overflow:hidden;border:2px solid #1e293b;box-shadow:0 10px 25px rgba(0,0,0,0.5);}canvas{display:block;width:100%;height:auto;background:#020617;cursor:crosshair;}.controls-hint{text-align:center;color:var(--text-muted);font-size:0.75rem;}.status-card{background:var(--card-bg);padding:0.85rem 1rem;border-radius:12px;border-left:4px solid var(--accent-purple);border-top:1px solid #1e293b;border-right:1px solid #1e293b;border-bottom:1px solid #1e293b;}.status-header{display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:700;color:var(--accent-purple);margin-bottom:0.3rem;}.status-box{font-style:italic;font-size:0.85rem;color:var(--text-main);min-height:38px;display:flex;align-items:center;line-height:1.3;}</style></head><body><header><h1>Neon Space Defender</h1></header><div class="app-wrapper"><div class="score-row"><span>SCORE: <span class="score-val" id="score">0</span></span><span>WAVE: <span class="score-val" id="wave" style="color: var(--accent-pink);">1</span></span><span>BEST: <span class="score-val" id="best" style="color: var(--accent-gold);">0</span></span></div><div class="canvas-container"><canvas id="gameCanvas" width="360" height="480"></canvas></div><div class="controls-hint">🚀 Drag finger or mouse to fly & auto-fire 🚀</div><div class="status-card"><div class="status-header"><span>📡 Fleet Comms</span></div><div class="status-box" id="comms-box">"Hostile meteors detected in orbit! Move your fighter to engage."</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const waveEl=document.getElementById('wave');const bestEl=document.getElementById('best');const commsBox=document.getElementById('comms-box');let gameState='START';let score=0;let wave=1;let highScore=localStorage.getItem('space_defender_best')||0;bestEl.textContent=highScore;let shakeTime=0;const player={x:canvas.width/2,y:400,radius:14,targetX:canvas.width/2,targetY:400,weapon:'SINGLE',weaponTimer:0,shield:false,shieldTimer:0,fireRate:8,fireCooldown:0};let lasers=[];let asteroids=[];let powerUps=[];let particles=[];let stars=[];for(let i=0;i<40;i++){stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*2+0.5,speed:Math.random()*1.5+0.5});}const messages={start:["Drag to steer ship. Collect power-ups to survive!"],triple:["TRIPLE LASER ACTIVATED! Firepower boosted!"],shield:["ENERGY SHIELD ENGAGED! Invulnerable temporarily!"],nuke:["SMART BOMB DETONATED! Sector wiped!"],waveUp:["WAVE CLEARED! Incoming faster asteroid cluster!"],lose:["Ship destroyed! Touch screen to launch backup fighter."]};function setComms(type){const list=messages[type];commsBox.textContent=\`"\${list[Math.floor(Math.random()*list.length)]}"\`;}function updateTargetPosition(e){const rect=canvas.getBoundingClientRect();const clientX=e.touches?e.touches[0].clientX:e.clientX;const clientY=e.touches?e.touches[0].clientY:e.clientY;player.targetX=clientX-rect.left;player.targetY=clientY-rect.top;if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';}}canvas.addEventListener('mousemove',updateTargetPosition);canvas.addEventListener('touchmove',(e)=>{e.preventDefault();updateTargetPosition(e);},{passive:false});canvas.addEventListener('click',()=>{if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';}});function spawnAsteroid(){const radius=Math.random()*16+12;asteroids.push({x:Math.random()*(canvas.width-radius*2)+radius,y:-radius,radius:radius,dx:(Math.random()-0.5)*(1+wave*0.2),dy:Math.random()*2+1.5+wave*0.3,hp:radius>22?2:1,color:radius>22?'#ec4899':'#a855f7',angle:0,rotSpeed:(Math.random()-0.5)*0.05});}function createExplosion(x,y,color,count=12){for(let i=0;i<count;i++){particles.push({x,y,dx:(Math.random()-0.5)*6,dy:(Math.random()-0.5)*6,radius:Math.random()*3+1,life:25,color});}}function spawnPowerUp(x,y){if(Math.random()<0.25){const types=['TRIPLE','SHIELD','NUKE'];powerUps.push({x,y,type:types[Math.floor(Math.random()*types.length)],radius:10,dy:1.5});}}function resetGame(){score=0;wave=1;scoreEl.textContent=0;waveEl.textContent=1;player.x=canvas.width/2;player.y=400;player.targetX=canvas.width/2;player.targetY=400;player.weapon='SINGLE';player.shield=false;lasers=[];asteroids=[];powerUps=[];particles=[];setComms('start');}function update(){stars.forEach(st=>{st.y+=st.speed;if(st.y>canvas.height)st.y=0;});if(gameState!=='PLAYING')return;player.x+=(player.targetX-player.x)*0.18;player.y+=(player.targetY-player.y)*0.18;player.x=Math.max(player.radius,Math.min(canvas.width-player.radius,player.x));player.y=Math.max(player.radius+50,Math.min(canvas.height-player.radius,player.y));particles.push({x:player.x+(Math.random()-0.5)*8,y:player.y+player.radius,dx:(Math.random()-0.5)*0.8,dy:Math.random()*3+2,radius:Math.random()*2+1,life:15,color:'#38bdf8'});if(player.weaponTimer>0){player.weaponTimer--;if(player.weaponTimer<=0)player.weapon='SINGLE';}if(player.shieldTimer>0){player.shieldTimer--;if(player.shieldTimer<=0)player.shield=false;}player.fireCooldown--;if(player.fireCooldown<=0){player.fireCooldown=player.fireRate;if(player.weapon==='TRIPLE'){lasers.push({x:player.x,y:player.y-15,dx:0,dy:-8});lasers.push({x:player.x-8,y:player.y-12,dx:-2,dy:-7.5});lasers.push({x:player.x+8,y:player.y-12,dx:2,dy:-7.5});}else{lasers.push({x:player.x,y:player.y-15,dx:0,dy:-8});}}for(let i=lasers.length-1;i>=0;i--){let l=lasers[i];l.x+=l.dx;l.y+=l.dy;if(l.y<-10)lasers.splice(i,1);}if(Math.random()<0.03+wave*0.008){spawnAsteroid();}for(let i=powerUps.length-1;i>=0;i--){let p=powerUps[i];p.y+=p.dy;const dist=Math.hypot(p.x-player.x,p.y-player.y);if(dist<p.radius+player.radius){if(p.type==='TRIPLE'){player.weapon='TRIPLE';player.weaponTimer=400;setComms('triple');}else if(p.type==='SHIELD'){player.shield=true;player.shieldTimer=350;setComms('shield');}else if(p.type==='NUKE'){asteroids.forEach(a=>{createExplosion(a.x,a.y,a.color,10);score+=10;});asteroids=[];shakeTime=12;setComms('nuke');}createExplosion(p.x,p.y,'#f59e0b',8);powerUps.splice(i,1);continue;}if(p.y>canvas.height+20)powerUps.splice(i,1);}for(let aIdx=asteroids.length-1;aIdx>=0;aIdx--){let a=asteroids[aIdx];a.x+=a.dx;a.y+=a.dy;a.angle+=a.rotSpeed;for(let lIdx=lasers.length-1;lIdx>=0;lIdx--){let l=lasers[lIdx];const dist=Math.hypot(l.x-a.x,l.y-a.y);if(dist<a.radius){lasers.splice(lIdx,1);a.hp--;if(a.hp<=0){createExplosion(a.x,a.y,a.color,12);spawnPowerUp(a.x,a.y);score+=Math.round(a.radius);scoreEl.textContent=score;if(score>=wave*250){wave++;waveEl.textContent=wave;setComms('waveUp');}asteroids.splice(aIdx,1);}else{createExplosion(l.x,l.y,'#38bdf8',4);}break;}}if(a){const pDist=Math.hypot(a.x-player.x,a.y-player.y);if(pDist<a.radius+player.radius){if(player.shield){createExplosion(a.x,a.y,a.color,12);asteroids.splice(aIdx,1);shakeTime=6;}else{createExplosion(player.x,player.y,'#38bdf8',25);gameOver();}}else if(a.y>canvas.height+a.radius){asteroids.splice(aIdx,1);}}}particles.forEach((pt,idx)=>{pt.x+=pt.dx;pt.y+=pt.dy;pt.life--;if(pt.life<=0)particles.splice(idx,1);});if(shakeTime>0)shakeTime--;}function gameOver(){gameState='GAMEOVER';shakeTime=18;if(score>highScore){highScore=score;localStorage.setItem('space_defender_best',highScore);bestEl.textContent=highScore;}setComms('lose');}function draw(){ctx.save();if(shakeTime>0){const dx=(Math.random()-0.5)*8;const dy=(Math.random()-0.5)*8;ctx.translate(dx,dy);}ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#94a3b8';stars.forEach(st=>{ctx.beginPath();ctx.arc(st.x,st.y,st.size,0,Math.PI*2);ctx.fill();});particles.forEach(pt=>{ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#38bdf8';lasers.forEach(l=>{ctx.beginPath();ctx.arc(l.x,l.y,3,0,Math.PI*2);ctx.fill();});powerUps.forEach(p=>{ctx.fillStyle=p.type==='TRIPLE'?'#ec4899':p.type==='SHIELD'?'#38bdf8':'#f59e0b';ctx.beginPath();ctx.arc(p.x,p.y,p.radius,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#ffffff';ctx.lineWidth=1.5;ctx.stroke();});asteroids.forEach(a=>{ctx.save();ctx.translate(a.x,a.y);ctx.rotate(a.angle);ctx.strokeStyle=a.color;ctx.lineWidth=2;ctx.beginPath();for(let i=0;i<6;i++){const rad=a.radius*(0.8+Math.sin(i*2)*0.2);const angle=(i/6)*Math.PI*2;const x=Math.cos(angle)*rad;const y=Math.sin(angle)*rad;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);}ctx.closePath();ctx.stroke();ctx.restore();});if(gameState==='PLAYING'){ctx.save();ctx.translate(player.x,player.y);ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.moveTo(0,-player.radius);ctx.lineTo(player.radius,player.radius);ctx.lineTo(0,player.radius-4);ctx.lineTo(-player.radius,player.radius);ctx.closePath();ctx.fill();if(player.shield){ctx.strokeStyle='#38bdf8';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,player.radius+8,0,Math.PI*2);ctx.stroke();}ctx.restore();}if(gameState==='START'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#38bdf8';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('TOUCH / DRAG TO LAUNCH',canvas.width/2,canvas.height/2);}else if(gameState==='GAMEOVER'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#ec4899';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('HULL DESTROYED',canvas.width/2,canvas.height/2-15);ctx.fillStyle='#f8fafc';ctx.font='14px sans-serif';ctx.fillText('Tap screen to redeploy fighter',canvas.width/2,canvas.height/2+15);}ctx.restore();}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`,
-            7: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Neon Flappy Cyber</title><style>:root{--bg-color:#030712;--card-bg:#0f172a;--accent-cyan:#38bdf8;--accent-pink:#f43f5e;--accent-purple:#c084fc;--accent-gold:#f59e0b;--text-main:#f8fafc;--text-muted:#94a3b8;}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none;}body{background-color:var(--bg-color);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0.75rem;touch-action:manipulation;}header{text-align:center;margin-bottom:0.5rem;}header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.app-wrapper{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.75rem;}.score-row{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:0.6rem 1rem;border-radius:12px;border:1px solid #1e293b;font-weight:600;font-size:0.85rem;}.score-val{color:var(--accent-cyan);font-size:1.1rem;font-weight:bold;}.canvas-container{position:relative;width:100%;background:var(--card-bg);border-radius:16px;overflow:hidden;border:2px solid #1e293b;box-shadow:0 10px 25px rgba(0,0,0,0.5);}canvas{display:block;width:100%;height:auto;background:#020617;cursor:pointer;}.controls-hint{text-align:center;color:var(--text-muted);font-size:0.75rem;}.status-card{background:var(--card-bg);padding:0.85rem 1rem;border-radius:12px;border-left:4px solid var(--accent-purple);border-top:1px solid #1e293b;border-right:1px solid #1e293b;border-bottom:1px solid #1e293b;}.status-header{display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:700;color:var(--accent-purple);margin-bottom:0.3rem;}.status-box{font-style:italic;font-size:0.85rem;color:var(--text-main);min-height:38px;display:flex;align-items:center;line-height:1.3;}</style></head><body><header><h1>Neon Flappy Cyber</h1></header><div class="app-wrapper"><div class="score-row"><span>SCORE: <span class="score-val" id="score">0</span></span><span>Pipes: <span class="score-val" id="cleared" style="color: var(--accent-purple);">0</span></span><span>BEST: <span class="score-val" id="best" style="color: var(--accent-gold);">0</span></span></div><div class="canvas-container"><canvas id="gameCanvas" width="360" height="480"></canvas></div><div class="controls-hint">⚡ Tap screen or press Spacebar to boost thrust ⚡</div><div class="status-card"><div class="status-header"><span>🚁 Flight Control</span></div><div class="status-box" id="flight-box">"Tap to thrust! Thread through laser gates to maintain vector."</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const clearedEl=document.getElementById('cleared');const bestEl=document.getElementById('best');const flightBox=document.getElementById('flight-box');let gameState='START';let score=0;let pipesCleared=0;let highScore=localStorage.getItem('flappy_cyber_best')||0;bestEl.textContent=highScore;const bird={x:80,y:220,radius:12,velocity:0,gravity:0.38,jump:-6.5};let pipes=[];let particles=[];let frameCount=0;const pipeGap=130;const pipeWidth=46;const messages={start:["Tap or hit Space to fire vertical thrusters!"],pass:["Gate traversed! Altitude stable."],lose:["Collision detected! Tap screen to redeploy drone."]};function setFlightMsg(type){const list=messages[type];flightBox.textContent=\`"\${list[Math.floor(Math.random()*list.length)]}"\`;}function spawnPipe(){const minHeight=50;const maxHeight=canvas.height-pipeGap-minHeight;const topHeight=Math.floor(Math.random()*(maxHeight-minHeight+1))+minHeight;pipes.push({x:canvas.width,top:topHeight,bottom:canvas.height-topHeight-pipeGap,passed:false});}function createParticles(x,y,color,count=8){for(let i=0;i<count;i++){particles.push({x,y,dx:(Math.random()-0.5)*4,dy:(Math.random()-0.5)*4,radius:Math.random()*3+1,life:20,color});}}function handleBoost(){if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';return;}if(gameState==='PLAYING'){bird.velocity=bird.jump;createParticles(bird.x-6,bird.y+6,'#38bdf8',5);}}window.addEventListener('keydown',(e)=>{if(e.code==='Space'||e.key===' '){e.preventDefault();handleBoost();}});canvas.addEventListener('touchstart',(e)=>{e.preventDefault();handleBoost();},{passive:false});canvas.addEventListener('click',handleBoost);function resetGame(){score=0;pipesCleared=0;scoreEl.textContent=0;clearedEl.textContent=0;bird.y=220;bird.velocity=0;pipes=[];particles=[];frameCount=0;setFlightMsg('start');}function update(){if(gameState!=='PLAYING')return;frameCount++;bird.velocity+=bird.gravity;bird.y+=bird.velocity;if(frameCount%3===0){particles.push({x:bird.x-10,y:bird.y,dx:-2,dy:(Math.random()-0.5)*2,radius:Math.random()*2+1,life:15,color:'#c084fc'});}if(bird.y+bird.radius>=canvas.height||bird.y-bird.radius<=0){gameOver();return;}if(frameCount%90===0){spawnPipe();}for(let i=pipes.length-1;i>=0;i--){let p=pipes[i];p.x-=2.2;if(bird.x+bird.radius>p.x&&bird.x-bird.radius<p.x+pipeWidth){if(bird.y-bird.radius<p.top||bird.y+bird.radius>canvas.height-p.bottom){gameOver();return;}}if(!p.passed&&p.x+pipeWidth<bird.x){p.passed=true;score+=10;pipesCleared++;scoreEl.textContent=score;clearedEl.textContent=pipesCleared;createParticles(bird.x,bird.y,'#f59e0b',8);setFlightMsg('pass');}if(p.x+pipeWidth<0){pipes.splice(i,1);}}}function gameOver(){gameState='GAMEOVER';createParticles(bird.x,bird.y,'#f43f5e',20);if(score>highScore){highScore=score;localStorage.setItem('flappy_cyber_best',highScore);bestEl.textContent=highScore;}setFlightMsg('lose');}function draw(){ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);pipes.forEach(p=>{ctx.fillStyle='#c084fc';ctx.fillRect(p.x,0,pipeWidth,p.top);ctx.fillRect(p.x,canvas.height-p.bottom,pipeWidth,p.bottom);ctx.fillStyle='#f43f5e';ctx.fillRect(p.x-2,p.top-6,pipeWidth+4,6);ctx.fillRect(p.x-2,canvas.height-p.bottom,pipeWidth+4,6);});particles.forEach(pt=>{ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(bird.x,bird.y,bird.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(bird.x+4,bird.y-2,4,0,Math.PI*2);ctx.fill();if(gameState==='START'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#c084fc';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('TAP OR SPACE TO BOOST',canvas.width/2,canvas.height/2);}else if(gameState==='GAMEOVER'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#f43f5e';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('CRASH DETECTED',canvas.width/2,canvas.height/2-15);ctx.fillStyle='#f8fafc';ctx.font='14px sans-serif';ctx.fillText('Tap screen or Space to reboot',canvas.width/2,canvas.height/2+15);}}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`
+            7: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"><title>Ball Dash</title><style>:root{--bg-color:#030712;--card-bg:#0f172a;--accent-cyan:#38bdf8;--accent-pink:#f43f5e;--accent-purple:#c084fc;--accent-gold:#f59e0b;--text-main:#f8fafc;--text-muted:#94a3b8;}*{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;user-select:none;-webkit-user-select:none;}body{background-color:var(--bg-color);color:var(--text-main);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:0.75rem;touch-action:manipulation;}header{text-align:center;margin-bottom:0.5rem;}header h1{font-size:1.8rem;background:linear-gradient(135deg,var(--accent-purple),var(--accent-cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}.app-wrapper{width:100%;max-width:380px;display:flex;flex-direction:column;gap:0.75rem;}.score-row{display:flex;justify-content:space-between;align-items:center;background:var(--card-bg);padding:0.6rem 1rem;border-radius:12px;border:1px solid #1e293b;font-weight:600;font-size:0.85rem;}.score-val{color:var(--accent-cyan);font-size:1.1rem;font-weight:bold;}.canvas-container{position:relative;width:100%;background:var(--card-bg);border-radius:16px;overflow:hidden;border:2px solid #1e293b;box-shadow:0 10px 25px rgba(0,0,0,0.5);}canvas{display:block;width:100%;height:auto;background:#020617;cursor:pointer;}.controls-hint{text-align:center;color:var(--text-muted);font-size:0.75rem;}.status-card{background:var(--card-bg);padding:0.85rem 1rem;border-radius:12px;border-left:4px solid var(--accent-purple);border-top:1px solid #1e293b;border-right:1px solid #1e293b;border-bottom:1px solid #1e293b;}.status-header{display:flex;justify-content:space-between;align-items:center;font-size:0.85rem;font-weight:700;color:var(--accent-purple);margin-bottom:0.3rem;}.status-box{font-style:italic;font-size:0.85rem;color:var(--text-main);min-height:38px;display:flex;align-items:center;line-height:1.3;}</style></head><body><header><h1>🏀 Ball Dash</h1></header><div class="app-wrapper"><div class="score-row"><span>SCORE: <span class="score-val" id="score">0</span></span><span>Gates: <span class="score-val" id="cleared" style="color: var(--accent-purple);">0</span></span><span>BEST: <span class="score-val" id="best" style="color: var(--accent-gold);">0</span></span></div><div class="canvas-container"><canvas id="gameCanvas" width="360" height="480"></canvas></div><div class="controls-hint">⚡ Tap screen or press Spacebar to boost ⚡</div><div class="status-card"><div class="status-header"><span>🏀 Ball Control</span></div><div class="status-box" id="flight-box">"Tap to dash! Navigate through gates to score."</div></div></div><script>const canvas=document.getElementById('gameCanvas');const ctx=canvas.getContext('2d');const scoreEl=document.getElementById('score');const clearedEl=document.getElementById('cleared');const bestEl=document.getElementById('best');const flightBox=document.getElementById('flight-box');let gameState='START';let score=0;let gatesCleared=0;let highScore=localStorage.getItem('ball_dash_best')||0;bestEl.textContent=highScore;const ball={x:80,y:220,radius:14,velocity:0,gravity:0.38,jump:-6.5};let gates=[];let particles=[];let frameCount=0;const gateGap=130;const gateWidth=46;const messages={start:["Tap or Space to dash the ball forward!"],pass:["Gate passed! Great timing!"],lose:["Collision! Tap screen to restart."]};function setFlightMsg(type){const list=messages[type];flightBox.textContent=\`"\${list[Math.floor(Math.random()*list.length)]}"\`;}function spawnGate(){const minHeight=50;const maxHeight=canvas.height-gateGap-minHeight;const topHeight=Math.floor(Math.random()*(maxHeight-minHeight+1))+minHeight;gates.push({x:canvas.width,top:topHeight,bottom:canvas.height-topHeight-gateGap,passed:false});}function createParticles(x,y,color,count=8){for(let i=0;i<count;i++){particles.push({x,y,dx:(Math.random()-0.5)*4,dy:(Math.random()-0.5)*4,radius:Math.random()*3+1,life:20,color});}}function handleBoost(){if(gameState==='START'||gameState==='GAMEOVER'){resetGame();gameState='PLAYING';return;}if(gameState==='PLAYING'){ball.velocity=ball.jump;createParticles(ball.x-6,ball.y+6,'#38bdf8',5);}}window.addEventListener('keydown',(e)=>{if(e.code==='Space'||e.key===' '){e.preventDefault();handleBoost();}});canvas.addEventListener('touchstart',(e)=>{e.preventDefault();handleBoost();},{passive:false});canvas.addEventListener('click',handleBoost);function resetGame(){score=0;gatesCleared=0;scoreEl.textContent=0;clearedEl.textContent=0;ball.y=220;ball.velocity=0;gates=[];particles=[];frameCount=0;setFlightMsg('start');}function update(){if(gameState!=='PLAYING')return;frameCount++;ball.velocity+=ball.gravity;ball.y+=ball.velocity;if(frameCount%3===0){particles.push({x:ball.x-10,y:ball.y,dx:-2,dy:(Math.random()-0.5)*2,radius:Math.random()*2+1,life:15,color:'#c084fc'});}if(ball.y+ball.radius>=canvas.height||ball.y-ball.radius<=0){gameOver();return;}if(frameCount%90===0){spawnGate();}for(let i=gates.length-1;i>=0;i--){let p=gates[i];p.x-=2.2;if(ball.x+ball.radius>p.x&&ball.x-ball.radius<p.x+gateWidth){if(ball.y-ball.radius<p.top||ball.y+ball.radius>canvas.height-p.bottom){gameOver();return;}}if(!p.passed&&p.x+gateWidth<ball.x){p.passed=true;score+=10;gatesCleared++;scoreEl.textContent=score;clearedEl.textContent=gatesCleared;createParticles(ball.x,ball.y,'#f59e0b',8);setFlightMsg('pass');}if(p.x+gateWidth<0){gates.splice(i,1);}}}function gameOver(){gameState='GAMEOVER';createParticles(ball.x,ball.y,'#f43f5e',20);if(score>highScore){highScore=score;localStorage.setItem('ball_dash_best',highScore);bestEl.textContent=highScore;}setFlightMsg('lose');}function draw(){ctx.fillStyle='#020617';ctx.fillRect(0,0,canvas.width,canvas.height);gates.forEach(p=>{ctx.fillStyle='#c084fc';ctx.fillRect(p.x,0,gateWidth,p.top);ctx.fillRect(p.x,canvas.height-p.bottom,gateWidth,p.bottom);ctx.fillStyle='#f43f5e';ctx.fillRect(p.x-2,p.top-6,gateWidth+4,6);ctx.fillRect(p.x-2,canvas.height-p.bottom,gateWidth+4,6);});particles.forEach(pt=>{ctx.fillStyle=pt.color;ctx.beginPath();ctx.arc(pt.x,pt.y,pt.radius,0,Math.PI*2);ctx.fill();});ctx.fillStyle='#38bdf8';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#f8fafc';ctx.beginPath();ctx.arc(ball.x+4,ball.y-2,4,0,Math.PI*2);ctx.fill();if(gameState==='START'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#c084fc';ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillText('TAP OR SPACE TO DASH',canvas.width/2,canvas.height/2);}else if(gameState==='GAMEOVER'){ctx.fillStyle='rgba(2, 6, 23, 0.85)';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.fillStyle='#f43f5e';ctx.font='bold 22px sans-serif';ctx.textAlign='center';ctx.fillText('CRASH!',canvas.width/2,canvas.height/2-15);ctx.fillStyle='#f8fafc';ctx.font='14px sans-serif';ctx.fillText('Tap screen or Space to restart',canvas.width/2,canvas.height/2+15);}}function loop(){update();draw();requestAnimationFrame(loop);}loop();<\/script></body></html>`
         };
 
         const overlay = document.getElementById('game-overlay');
@@ -3375,7 +3413,7 @@
         });
 
         // ============================================================
-        // 14. STARTUP & INIT (splash 3s)
+        // 14. STARTUP & INIT (splash 3s) - show install banner after splash
         // ============================================================
         window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('app-content').style.display = 'none';
@@ -3394,18 +3432,16 @@
                         overlay.style.display = 'none';
                         const hub = document.getElementById('landing-hub-wrapper');
                         if (hub) hub.style.display = 'flex';
+                        // Show install banner after splash screen
+                        if (window.showInstallBanner) {
+                            window.showInstallBanner();
+                        }
                     }, 500);
                 }
             }, 3000);
 
             document.getElementById('refreshBtn')?.addEventListener('click', generateCaptcha);
             generateCaptcha();
-
-            // Show install banner if not dismissed and not in standalone mode
-            if (!localStorage.getItem('installBannerDismissed') &&
-                !window.matchMedia('(display-mode: standalone)').matches) {
-                // Will be shown by beforeinstallprompt event
-            }
         });
     </script>
 
